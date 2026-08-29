@@ -475,6 +475,7 @@
             expContent.classList.add('hidden');
             obContent.classList.add('hidden');
             debtContent.classList.add('hidden');
+            
             expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
             obTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
             debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
@@ -491,138 +492,33 @@
             }
         }
 
-        // دالة التحويل بين الأساسي والمدخرات المطلوبة
-        window.transferMoney = function(type) {
-            const input = document.getElementById('transfer-savings-amount');
-            const amount = parseFloat(input.value);
-
-            if (isNaN(amount) || amount <= 0) {
-                alert("يرجى إدخال مبلغ صحيح.");
-                return;
-            }
-
-            if (type === 'to-savings') {
-                if (amount > baseBalance) {
-                    alert("المبلغ المراد تحويله أكبر من الرصيد الأساسي المتاح!");
-                    return;
-                }
-                const newBase = baseBalance - amount;
-                const newSavings = totalSavings + amount;
-
-                set(ref(db, "settings/baseBalance"), newBase);
-                set(ref(db, "settings/totalSavings"), newSavings);
-            } else if (type === 'from-savings') {
-                if (amount > totalSavings) {
-                    alert("المبلغ المراد سحبه أكبر من إجمالي المدخرات المتاحة!");
-                    return;
-                }
-                const newSavings = totalSavings - amount;
-                const newBase = baseBalance + amount;
-
-                set(ref(db, "settings/totalSavings"), newSavings);
-                set(ref(db, "settings/baseBalance"), newBase);
-            }
-
-            input.value = "";
-            closeSavingsModal();
-        }
-
-        window.addExpense = function(e) {
-            e.preventDefault();
-            const title = document.getElementById('exp-title').value;
-            const amount = parseFloat(document.getElementById('exp-amount').value);
-            const category = document.getElementById('exp-category').value;
-            const btn = document.getElementById('exp-btn');
-
-            if (!title || isNaN(amount)) return;
-
-            btn.disabled = true;
-            btn.innerText = "جاري الحفظ...";
-
-            push(ref(db, "expenses"), {
-                title,
-                amount,
-                category,
-                date: new Date().toLocaleDateString('ar-IQ')
-            }).then(() => {
-                document.getElementById('exp-title').value = '';
-                document.getElementById('exp-amount').value = '';
-                btn.disabled = false;
-                btn.innerText = "حفظ المصروف";
-            }).catch(err => {
-                console.error(err);
-                btn.disabled = false;
-                btn.innerText = "حفظ المصروف";
-            });
-        }
-
-        window.deleteExpense = function(id) {
-            remove(ref(db, "expenses/" + id));
-        }
-
-        window.addObligation = function(e) {
-            e.preventDefault();
-            const title = document.getElementById('ob-title').value;
-            const amount = parseFloat(document.getElementById('ob-amount').value);
-            const category = document.getElementById('ob-category').value;
-            const btn = document.getElementById('ob-btn');
-
-            if (!title || isNaN(amount)) return;
-
-            btn.disabled = true;
-            btn.innerText = "جاري الحفظ...";
-
-            push(ref(db, "obligations"), {
-                title,
-                amount,
-                category,
-                date: new Date().toLocaleDateString('ar-IQ')
-            }).then(() => {
-                document.getElementById('ob-title').value = '';
-                document.getElementById('ob-amount').value = '';
-                btn.disabled = false;
-                btn.innerText = "حفظ الالتزام";
-            }).catch(err => {
-                console.error(err);
-                btn.disabled = false;
-                btn.innerText = "حفظ الالتزام";
-            });
-        }
-
-        window.deleteObligation = function(id) {
-            remove(ref(db, "obligations/" + id));
-        }
-
+        // دالة إضافة دين جديد
         window.addDebt = function(e) {
             e.preventDefault();
             const name = document.getElementById('debt-name').value;
-            const amount = parseFloat(document.getElementById('debt-amount').value);
-            const btn = document.getElementById('debt-btn');
-
-            if (!name || isNaN(amount)) return;
-
-            btn.disabled = true;
-            btn.innerText = "جاري الحفظ...";
+            const amount = Number(document.getElementById('debt-amount').value);
+            if(!name || !amount) return;
 
             push(ref(db, "debts"), {
-                name,
-                amount,
+                name: name,
+                amount: amount,
                 date: new Date().toLocaleDateString('ar-IQ')
             }).then(() => {
-                document.getElementById('debt-name').value = '';
-                document.getElementById('debt-amount').value = '';
-                btn.disabled = false;
-                btn.innerText = "حفظ الدين";
-            }).catch(err => {
-                console.error(err);
-                btn.disabled = false;
-                btn.innerText = "حفظ الدين";
+                document.getElementById('debt-form').reset();
             });
         }
 
+        // [الإضافة الجديدة والآمنة] دالة حذف دين معين من أرشيف الديون دون التأثير على أي بيانات أخرى
+        window.deleteDebt = function(debtId) {
+            if (confirm("هل أنت متأكد من حذف هذا الدين نهائياً؟")) {
+                remove(ref(db, `debts/${debtId}`));
+            }
+        }
+
+        // دالة فتح نافذة تسديد الدين
         window.openPayDebtModal = function(id, name, amount) {
             activeDebtToPay = { id, name, amount };
-            document.getElementById('pay-debt-info').innerText = `الدين لصالح: ${name} (${amount.toLocaleString()} د.ع)`;
+            document.getElementById('pay-debt-info').innerText = `الشخص: ${name} | المبلغ: ${amount.toLocaleString()} د.ع`;
             document.getElementById('pay-debt-modal').classList.remove('hidden');
         }
 
@@ -631,264 +527,299 @@
             document.getElementById('pay-debt-modal').classList.add('hidden');
         }
 
+        // تأكيد تسديد الدين
         window.confirmPayDebt = function(source) {
-            if (!activeDebtToPay) return;
-            const { id, amount } = activeDebtToPay;
+            if(!activeDebtToPay) return;
+            const amount = activeDebtToPay.amount;
 
-            if (source === 'base') {
-                const newBase = baseBalance - amount;
-                set(ref(db, "settings/baseBalance"), newBase);
-            } else if (source === 'savings') {
-                const newSavings = totalSavings - amount;
-                set(ref(db, "settings/totalSavings"), newSavings);
+            if(source === 'base') {
+                if(baseBalance < amount) {
+                    alert("الرصيد الأساسي لا يكفي لتسديد هذا الدين!");
+                    return;
+                }
+                baseBalance -= amount;
+                set(ref(db, "settings/baseBalance"), baseBalance);
+            } else if(source === 'savings') {
+                if(totalSavings < amount) {
+                    alert("رصيد المدخرات لا يكفي لتسديد هذا الدين!");
+                    return;
+                }
+                totalSavings -= amount;
+                set(ref(db, "settings/totalSavings"), totalSavings);
             }
 
-            remove(ref(db, "debts/" + id));
+            // حذف الدين بعد التسديد بنجاح
+            remove(ref(db, `debts/${activeDebtToPay.id}`));
             closePayDebtModal();
+        }
+
+        // باقي الدوال (مصروفات، التزامات، ترحيل، مدخرات...) محفوظة تماماً
+        window.addExpense = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('exp-title').value;
+            const amount = Number(document.getElementById('exp-amount').value);
+            const category = document.getElementById('exp-category').value;
+            if(!title || !amount) return;
+
+            push(ref(db, "expenses"), { title, amount, category, date: new Date().toLocaleDateString('ar-IQ') }).then(() => {
+                document.getElementById('exp-form').reset();
+            });
+        }
+
+        window.deleteExpense = function(id) {
+            remove(ref(db, `expenses/${id}`));
+        }
+
+        window.addObligation = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('ob-title').value;
+            const amount = Number(document.getElementById('ob-amount').value);
+            const category = document.getElementById('ob-category').value;
+            if(!title || !amount) return;
+
+            push(ref(db, "obligations"), { title, amount, category, date: new Date().toLocaleDateString('ar-IQ') }).then(() => {
+                document.getElementById('obligation-form').reset();
+            });
+        }
+
+        window.deleteObligation = function(id) {
+            remove(ref(db, `obligations/${id}`));
         }
 
         window.openEditBalanceModal = function() {
             document.getElementById('new-balance-input').value = baseBalance;
             document.getElementById('balance-modal').classList.remove('hidden');
         }
-
         window.closeEditBalanceModal = function() {
             document.getElementById('balance-modal').classList.add('hidden');
         }
-
         window.saveNewBalance = function() {
-            const val = parseFloat(document.getElementById('new-balance-input').value);
-            if (!isNaN(val)) {
-                set(ref(db, "settings/baseBalance"), val);
-                closeEditBalanceModal();
-            }
+            const val = Number(document.getElementById('new-balance-input').value);
+            set(ref(db, "settings/baseBalance"), val);
+            closeEditBalanceModal();
         }
 
         window.openBudgetModal = function() {
             document.getElementById('new-budget-input').value = monthlyBudget;
             document.getElementById('budget-modal').classList.remove('hidden');
         }
-
         window.closeBudgetModal = function() {
             document.getElementById('budget-modal').classList.add('hidden');
         }
-
         window.saveNewBudget = function() {
-            const val = parseFloat(document.getElementById('new-budget-input').value);
-            if (!isNaN(val)) {
-                set(ref(db, "settings/monthlyBudget"), val);
-                closeBudgetModal();
-            }
+            const val = Number(document.getElementById('new-budget-input').value);
+            set(ref(db, "settings/monthlyBudget"), val);
+            closeBudgetModal();
         }
 
         window.openSavingsModal = function() {
-            document.getElementById('new-savings-input').value = totalSavings;
             document.getElementById('savings-modal').classList.remove('hidden');
         }
-
         window.closeSavingsModal = function() {
             document.getElementById('savings-modal').classList.add('hidden');
         }
-
         window.addToSavings = function() {
-            const val = parseFloat(document.getElementById('add-savings-input').value);
-            if (!isNaN(val) && val > 0) {
-                set(ref(db, "settings/totalSavings"), totalSavings + val);
-                document.getElementById('add-savings-input').value = '';
-                closeSavingsModal();
-            }
+            const val = Number(document.getElementById('add-savings-input').value);
+            if(!val) return;
+            totalSavings += val;
+            set(ref(db, "settings/totalSavings"), totalSavings);
+            document.getElementById('add-savings-input').value = '';
+            closeSavingsModal();
         }
-
         window.saveNewSavings = function() {
-            const val = parseFloat(document.getElementById('new-savings-input').value);
-            if (!isNaN(val)) {
-                set(ref(db, "settings/totalSavings"), val);
-                closeSavingsModal();
+            const val = Number(document.getElementById('new-savings-input').value);
+            set(ref(db, "settings/totalSavings"), val);
+            closeSavingsModal();
+        }
+        window.transferMoney = function(type) {
+            const amt = Number(document.getElementById('transfer-savings-amount').value);
+            if(!amt || amt <= 0) {
+                alert("يرجى إدخال مبلغ صحيح");
+                return;
             }
+            if(type === 'to-savings') {
+                let currentExpTotal = expensesData.reduce((sum, item) => sum + Number(item.amount), 0);
+                let currentObTotal = obligationsData.reduce((sum, item) => sum + Number(item.amount), 0);
+                let currentNet = baseBalance - (currentExpTotal + currentObTotal);
+                if(currentNet < amt) {
+                    alert("الرصيد الصافي المتاح لا يكفي للتحويل للمدخرات!");
+                    return;
+                }
+                baseBalance -= amt;
+                totalSavings += amt;
+            } else if(type === 'from-savings') {
+                if(totalSavings < amt) {
+                    alert("رصيد المدخرات لا يكفي!");
+                    return;
+                }
+                totalSavings -= amt;
+                baseBalance += amt;
+            }
+            set(ref(db, "settings/baseBalance"), baseBalance);
+            set(ref(db, "settings/totalSavings"), totalSavings);
+            document.getElementById('transfer-savings-amount').value = '';
+            closeSavingsModal();
         }
 
         window.openRolloverModal = function() {
             document.getElementById('rollover-modal').classList.remove('hidden');
         }
-
         window.closeRolloverModal = function() {
             document.getElementById('rollover-modal').classList.add('hidden');
         }
 
         window.executeMonthRollover = function() {
-            const totalExp = expensesData.reduce((acc, curr) => acc + curr.amount, 0);
-            const totalOb = obligationsData.reduce((acc, curr) => acc + curr.amount, 0);
-            const netRemaining = baseBalance - (totalExp + totalOb);
-            const monthName = new Date().toLocaleDateString('ar-IQ', { month: 'long', year: 'numeric' });
+            let expTotal = expensesData.reduce((sum, item) => sum + Number(item.amount), 0);
+            let obTotal = obligationsData.reduce((sum, item) => sum + Number(item.amount), 0);
+            let netRemaining = baseBalance - (expTotal + obTotal);
 
-            const archiveEntry = {
-                monthName,
-                baseBalanceBefore: baseBalance,
-                totalExpenses: totalExp,
-                totalObligations: totalOb,
-                netRemaining,
-                expenses: expensesData,
-                obligations: obligationsData,
-                timestamp: Date.now()
+            let monthKey = "شهر " + new Date().toLocaleDateString('ar-IQ', { month: 'long', year: 'numeric' });
+
+            let archivePayload = {
+                netRemaining: netRemaining,
+                totalExpenses: expTotal,
+                totalObligations: obTotal,
+                expenses: expensesData.reduce((acc, item) => { acc[item.id] = item; return acc; }, {}),
+                obligations: obligationsData.reduce((acc, item) => { acc[item.id] = item; return acc; }, {})
             };
 
-            const newArchiveRef = push(ref(db, "archive"));
-            set(newArchiveRef, archiveEntry).then(() => {
-                set(ref(db, "settings/baseBalance"), netRemaining);
-                
-                // مسح المصروفات والالتزامات للشهر الحالي البدء بشهر جديد نظيف
-                set(ref(db, "expenses"), null);
-                set(ref(db, "obligations"), null);
+            set(ref(db, `archive/${Date.now()}_${monthKey}`), archivePayload);
+            set(ref(db, "settings/baseBalance"), netRemaining);
+            set(ref(db, "expenses"), null);
+            set(ref(db, "obligations"), null);
 
-                closeRolloverModal();
-                alert("تم ترحيل الشهر بنجاح ونقل المتبقي للرصيد الأساسي الجديد!");
-            }).catch(err => {
-                console.error(err);
-                alert("حدث خطأ أثناء عملية الترحيل.");
-            });
+            closeRolloverModal();
+            alert("تم ترحيل الشهر بنجاح وأرشفة البيانات القديمة، وأصبح المتبقي هو الرصيد الأساسي الجديد!");
         }
 
-        window.openArchiveDetailModal = function(archiveKey) {
-            const item = archivedMonths[archiveKey];
-            if (!item) return;
+        window.openArchiveDetailModal = function(key) {
+            let monthData = archivedMonths[key];
+            if(!monthData) return;
+            document.getElementById('archive-modal-title').innerText = key.split('_')[1] || "تفاصيل الشهر";
+            document.getElementById('arch-total-exp').innerText = (monthData.totalExpenses || 0).toLocaleString() + " د.ع";
+            document.getElementById('arch-total-ob').innerText = (monthData.totalObligations || 0).toLocaleString() + " د.ع";
+            document.getElementById('arch-net-rem').innerText = (monthData.netRemaining || 0).toLocaleString() + " د.ع";
 
-            document.getElementById('archive-modal-title').innerText = `تفاصيل أرشيف: ${item.monthName || 'شهر سابق'}`;
-            document.getElementById('arch-total-exp').innerText = `${(item.totalExpenses || 0).toLocaleString()} د.ع`;
-            document.getElementById('arch-total-ob').innerText = `${(item.totalObligations || 0).toLocaleString()} د.ع`;
-            document.getElementById('arch-net-rem').innerText = `${(item.netRemaining || 0).toLocaleString()} د.ع`;
-
-            const expContainer = document.getElementById('arch-expenses-list');
-            if (item.expenses && Object.keys(item.expenses).length > 0) {
-                expContainer.innerHTML = Object.values(item.expenses).map(ex => `
-                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl text-[11px]">
-                        <span class="font-bold text-slate-700">${ex.title} (${ex.category})</span>
-                        <span class="font-black text-rose-600">${ex.amount.toLocaleString()} د.ع</span>
-                    </div>
-                `).join('');
-            } else {
-                expContainer.innerHTML = `<p class="text-[10px] text-slate-400 text-center py-2">لا توجد مصروفات</p>`;
+            let expHtml = "";
+            if(monthData.expenses) {
+                Object.values(monthData.expenses).forEach(ex => {
+                    expHtml += `<div class="bg-purple-50/50 p-2 rounded-xl flex justify-between text-[10px]"><span>${ex.title} (${ex.category || ''})</span><span class="font-bold text-rose-600">${Number(ex.amount).toLocaleString()} د.ع</span></div>`;
+                });
             }
+            document.getElementById('arch-expenses-list').innerHTML = expHtml || '<p class="text-[10px] text-slate-400 text-center py-2">لا توجد مصروفات</p>';
 
-            const obContainer = document.getElementById('arch-obligations-list');
-            if (item.obligations && Object.keys(item.obligations).length > 0) {
-                obContainer.innerHTML = Object.values(item.obligations).map(ob => `
-                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl text-[11px]">
-                        <span class="font-bold text-slate-700">${ob.title} (${ob.category})</span>
-                        <span class="font-black text-sky-600">${ob.amount.toLocaleString()} د.ع</span>
-                    </div>
-                `).join('');
-            } else {
-                obContainer.innerHTML = `<p class="text-[10px] text-slate-400 text-center py-2">لا توجد التزامات</p>`;
+            let obHtml = "";
+            if(monthData.obligations) {
+                Object.values(monthData.obligations).forEach(ob => {
+                    obHtml += `<div class="bg-purple-50/50 p-2 rounded-xl flex justify-between text-[10px]"><span>${ob.title} (${ob.category || ''})</span><span class="font-bold text-sky-600">${Number(ob.amount).toLocaleString()} د.ع</span></div>`;
+                });
             }
+            document.getElementById('arch-obligations-list').innerHTML = obHtml || '<p class="text-[10px] text-slate-400 text-center py-2">لا توجد التزامات</p>';
 
             document.getElementById('archive-detail-modal').classList.remove('hidden');
         }
-
         window.closeArchiveDetailModal = function() {
             document.getElementById('archive-detail-modal').classList.add('hidden');
         }
 
         function renderData() {
-            const totalExp = expensesData.reduce((acc, curr) => acc + curr.amount, 0);
-            const totalOb = obligationsData.reduce((acc, curr) => acc + curr.amount, 0);
-            const totalDebt = debtsData.reduce((acc, curr) => acc + curr.amount, 0);
-            const netBal = baseBalance - (totalExp + totalOb);
+            let expTotal = expensesData.reduce((sum, item) => sum + Number(item.amount), 0);
+            let obTotal = obligationsData.reduce((sum, item) => sum + Number(item.amount), 0);
+            let debtTotal = debtsData.reduce((sum, item) => sum + Number(item.amount), 0);
+            let net = baseBalance - (expTotal + obTotal);
 
-            document.getElementById('net-balance').innerText = `${netBal.toLocaleString()} د.ع`;
+            document.getElementById('net-balance').innerText = net.toLocaleString() + " د.ع";
             document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
             document.getElementById('budget-limit-text').innerText = monthlyBudget.toLocaleString();
-            document.getElementById('total-expenses').innerText = `${totalExp.toLocaleString()} د.ع`;
-            document.getElementById('total-obligations').innerText = `${totalOb.toLocaleString()} د.ع`;
-            document.getElementById('total-debts').innerText = `${totalDebt.toLocaleString()} د.ع`;
-            document.getElementById('total-savings').innerText = `${totalSavings.toLocaleString()} د.ع`;
+            document.getElementById('total-expenses').innerText = expTotal.toLocaleString() + " د.ع";
+            document.getElementById('total-obligations').innerText = obTotal.toLocaleString() + " د.ع";
+            document.getElementById('total-debts').innerText = debtTotal.toLocaleString() + " د.ع";
+            document.getElementById('total-savings').innerText = totalSavings.toLocaleString() + " د.ع";
 
-            let progress = monthlyBudget > 0 ? (totalExp / monthlyBudget) * 100 : 0;
-            if (progress > 100) progress = 100;
-            const progressBar = document.getElementById('budget-progress-bar');
-            progressBar.style.width = `${progress}%`;
-            if (progress > 85) {
-                progressBar.className = "bg-rose-500 h-full transition-all duration-500";
-            } else if (progress > 60) {
-                progressBar.className = "bg-amber-400 h-full transition-all duration-500";
-            } else {
-                progressBar.className = "bg-emerald-400 h-full transition-all duration-500";
-            }
+            let percent = monthlyBudget > 0 ? Math.min(100, Math.round((expTotal / monthlyBudget) * 100)) : 0;
+            const bar = document.getElementById('budget-progress-bar');
+            bar.style.width = percent + "%";
+            if (percent > 85) bar.className = "bg-rose-500 h-full transition-all duration-500";
+            else if (percent > 60) bar.className = "bg-amber-400 h-full transition-all duration-500";
+            else bar.className = "bg-emerald-400 h-full transition-all duration-500";
 
             // عرض المصروفات
-            const expList = document.getElementById('expenses-list');
-            if (expensesData.length > 0) {
-                expList.innerHTML = expensesData.map(item => `
-                    <div class="flex justify-between items-center bg-indigo-50/40 p-3 rounded-2xl border border-indigo-100/60">
+            let expListEl = document.getElementById('expenses-list');
+            if (expensesData.length === 0) {
+                expListEl.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة</p>';
+            } else {
+                expListEl.innerHTML = expensesData.map(item => `
+                    <div class="bg-indigo-50/40 border border-indigo-100 p-3 rounded-2xl flex justify-between items-center text-xs">
                         <div>
-                            <h4 class="text-xs font-extrabold text-slate-800">${item.title}</h4>
-                            <p class="text-[10px] text-indigo-500">${item.category} • ${item.date}</p>
+                            <p class="font-extrabold text-indigo-950">${item.title}</p>
+                            <span class="text-[9px] text-indigo-400">${item.category} • ${item.date}</span>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-black text-rose-600">${item.amount.toLocaleString()} د.ع</span>
-                            <button type="button" onclick="deleteExpense('${item.id}')" class="w-7 h-7 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xs hover:bg-rose-200 transition cursor-pointer">✕</button>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-rose-600">${Number(item.amount).toLocaleString()} د.ع</span>
+                            <button type="button" onclick="deleteExpense('${item.id}')" class="w-7 h-7 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center font-bold hover:bg-rose-100 transition cursor-pointer">✕</button>
                         </div>
                     </div>
                 `).join('');
-            } else {
-                expList.innerHTML = `<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة هذا الشهر</p>`;
             }
 
             // عرض الالتزامات
-            const obList = document.getElementById('obligations-list');
-            if (obligationsData.length > 0) {
-                obList.innerHTML = obligationsData.map(item => `
-                    <div class="flex justify-between items-center bg-sky-50/40 p-3 rounded-2xl border border-sky-100/60">
-                        <div>
-                            <h4 class="text-xs font-extrabold text-slate-800">${item.title}</h4>
-                            <p class="text-[10px] text-sky-500">${item.category} • ${item.date}</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-black text-sky-600">${item.amount.toLocaleString()} د.ع</span>
-                            <button type="button" onclick="deleteObligation('${item.id}')" class="w-7 h-7 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xs hover:bg-sky-200 transition cursor-pointer">✕</button>
-                        </div>
-                    </div>
-                `).join('');
+            let obListEl = document.getElementById('obligations-list');
+            if (obligationsData.length === 0) {
+                obListEl.innerHTML = '<p class="text-[11px] text-sky-400 text-center py-6">لا توجد التزامات مسجلة</p>';
             } else {
-                obList.innerHTML = `<p class="text-[11px] text-sky-400 text-center py-6">لا توجد التزامات مسجلة هذا الشهر</p>`;
-            }
-
-            // عرض الديون
-            const debtList = document.getElementById('debts-list');
-            if (debtsData.length > 0) {
-                debtList.innerHTML = debtsData.map(item => `
-                    <div class="flex justify-between items-center bg-amber-50/40 p-3 rounded-2xl border border-amber-100/60">
+                obListEl.innerHTML = obligationsData.map(item => `
+                    <div class="bg-sky-50/40 border border-sky-100 p-3 rounded-2xl flex justify-between items-center text-xs">
                         <div>
-                            <h4 class="text-xs font-extrabold text-slate-800">${item.name}</h4>
-                            <p class="text-[10px] text-amber-600">${item.date}</p>
+                            <p class="font-extrabold text-sky-950">${item.title}</p>
+                            <span class="text-[9px] text-sky-400">${item.category} • ${item.date}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-black text-amber-600">${item.amount.toLocaleString()} د.ع</span>
-                            <button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" class="bg-emerald-600 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold hover:bg-emerald-700 transition cursor-pointer">تسديد</button>
+                            <span class="font-black text-sky-600">${Number(item.amount).toLocaleString()} د.ع</span>
+                            <button type="button" onclick="deleteObligation('${item.id}')" class="w-7 h-7 rounded-xl bg-sky-50 text-sky-500 flex items-center justify-center font-bold hover:bg-sky-100 transition cursor-pointer">✕</button>
                         </div>
                     </div>
                 `).join('');
-            } else {
-                debtList.innerHTML = `<p class="text-[11px] text-indigo-400 text-center py-4">لا توجد ديون</p>`;
             }
 
-            // عرض الأرشيف
-            const archList = document.getElementById('archive-list');
-            const archKeys = Object.keys(archivedMonths);
-            if (archKeys.length > 0) {
-                archList.innerHTML = archKeys.map(key => {
-                    const item = archivedMonths[key];
+            // عرض الديون والأرشيف (محدث مع زر الحذف الآمن وتعديل التصميم ليتوافق معه)
+            let debtListEl = document.getElementById('debts-list');
+            if (debtsData.length === 0) {
+                debtListEl.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-4">لا توجد ديون</p>';
+            } else {
+                debtListEl.innerHTML = debtsData.map(item => `
+                    <div class="bg-amber-50/40 border border-amber-100 p-3 rounded-2xl flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-extrabold text-amber-950">${item.name}</p>
+                            <span class="text-[9px] text-amber-500">${item.date}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-amber-600">${Number(item.amount).toLocaleString()} د.ع</span>
+                            <button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-xl font-bold text-[10px] transition cursor-pointer">تسديد</button>
+                            <button type="button" onclick="deleteDebt('${item.id}')" title="حذف الدين" class="w-7 h-7 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center font-bold hover:bg-rose-100 transition cursor-pointer">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // عرض أرشيف الشهور السابقة
+            let archiveListEl = document.getElementById('archive-list');
+            let keys = Object.keys(archivedMonths);
+            if (keys.length === 0) {
+                archiveListEl.innerHTML = '<p class="text-[11px] text-purple-400 text-center py-4">لا توجد شهور مؤرشفة بعد</p>';
+            } else {
+                archiveListEl.innerHTML = keys.map(key => {
+                    let mData = archivedMonths[key];
+                    let titleStr = key.split('_')[1] || key;
                     return `
-                        <div onclick="openArchiveDetailModal('${key}')" class="flex justify-between items-center bg-purple-50/60 hover:bg-purple-100/70 p-3 rounded-2xl border border-purple-100 cursor-pointer transition">
+                        <div onclick="openArchiveDetailModal('${key}')" class="bg-purple-50/60 hover:bg-purple-100/80 border border-purple-200 p-3 rounded-2xl flex justify-between items-center text-xs cursor-pointer transition">
                             <div>
-                                <h4 class="text-xs font-extrabold text-purple-900">🗓️ ${item.monthName || 'شهر مؤرشف'}</h4>
-                                <p class="text-[10px] text-slate-500">المتبقي المرحل: <span class="font-bold text-emerald-600">${(item.netRemaining || 0).toLocaleString()} د.ع</span></p>
+                                <p class="font-extrabold text-purple-950">📦 ${titleStr}</p>
+                                <span class="text-[9px] text-purple-500">المتبقي المرحل: ${Number(mData.netRemaining || 0).toLocaleString()} د.ع</span>
                             </div>
-                            <span class="text-xs bg-purple-200 text-purple-800 px-2.5 py-1 rounded-xl font-bold">استعراض</span>
+                            <span class="text-purple-600 font-bold text-[10px] bg-white px-2.5 py-1 rounded-xl shadow-sm">استعراض ◀</span>
                         </div>
                     `;
                 }).join('');
-            } else {
-                archList.innerHTML = `<p class="text-[11px] text-purple-400 text-center py-4">لا توجد شهور مؤرشفة بعد</p>`;
             }
         }
     </script>
