@@ -16,7 +16,7 @@
 </head>
 <body class="text-slate-800 pb-28">
 
-    <!-- نافذة تسجيل الدخول (حماية المحفظة) -->
+    <!-- نافذة تسجيل الدخول -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl space-y-5 border border-indigo-100 text-center">
             <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-inner">🔒</div>
@@ -89,7 +89,7 @@
                         <p id="total-expenses" class="text-xs font-black tracking-tight text-rose-200 mt-0.5">0 د.ع</p>
                     </div>
                     <div>
-                        <span class="text-[10px] text-indigo-100 font-medium block">الديون</span>
+                        <span class="text-[10px] text-indigo-100 font-medium block">ديون غير مسددة</span>
                         <p id="total-debts" class="text-xs font-black tracking-tight text-amber-200 mt-0.5">0 د.ع</p>
                     </div>
                     <div onclick="openSavingsModal()" class="cursor-pointer group bg-white/10 hover:bg-white/20 p-1.5 rounded-2xl transition">
@@ -100,7 +100,7 @@
             </div>
         </section>
 
-        <!-- التبويبات الحديثة -->
+        <!-- التبويبات -->
         <div class="bg-indigo-100/80 p-1.5 rounded-2xl flex gap-1 shadow-inner border border-indigo-200/60">
             <button type="button" onclick="switchTab('expenses')" id="tab-expenses" class="flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                 <span>💸</span> المصروفات
@@ -118,10 +118,10 @@
                 </h2>
                 <form id="expense-form" onsubmit="addExpense(event)" class="space-y-3.5">
                     <div>
-                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: إنترنت، تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: إنترنت، تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 outline-none transition">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="exp-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                        <input type="number" id="exp-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 outline-none transition">
                         <select id="exp-category" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-700 focus:bg-white focus:border-indigo-500 outline-none transition">
                             <option value="طعام">طعام ومشروبات</option>
                             <option value="نقل">نقل ومواصلات</option>
@@ -147,36 +147,24 @@
             <div class="glass-card p-5 rounded-3xl shadow-sm space-y-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xs font-extrabold text-indigo-900 flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> إضافة دين أو سلفة
+                        <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> إضافة دين جديد فقط
                     </h2>
                     <button type="button" onclick="openSavingsModal()" class="text-[10px] bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
-                        <span>➕</span> إضافة / تعديل المدخرات
+                        <span>➕</span> المدخرات
                     </button>
                 </div>
-                <form id="debt-form" onsubmit="addDebt(event)" class="space-y-3.5">
-                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة الدائنة" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
-                    <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
-                    
-                    <!-- اختيار مصدر التسديد عند الإضافة -->
-                    <div class="bg-indigo-50/70 p-3 rounded-2xl border border-indigo-100 space-y-1.5">
-                        <label class="text-[11px] font-bold text-indigo-900 block">طريقة تسديد هذا الدين/السلفة:</label>
-                        <div class="flex gap-4 text-xs font-semibold">
-                            <label class="flex items-center gap-1.5 cursor-pointer">
-                                <input type="radio" name="payment-source" value="balance" checked class="accent-indigo-600"> من الرصيد الأساسي
-                            </label>
-                            <label class="flex items-center gap-1.5 cursor-pointer">
-                                <input type="radio" name="payment-source" value="savings" class="accent-emerald-600"> من المدخرات 🏦
-                            </label>
-                        </div>
-                    </div>
 
-                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين والتسديد</button>
+                <form id="debt-form" onsubmit="addDebtOnly(event)" class="space-y-3.5">
+                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الشهر (مثلاً: دين أحمد)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 outline-none transition">
+                    <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 outline-none transition">
+                    
+                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين الجديد</button>
                 </form>
             </div>
 
             <!-- سجل الديون -->
             <div class="glass-card p-5 rounded-3xl shadow-sm">
-                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل الديون والسلف</h2>
+                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 أرشيف الديون وتواريخ التسديد</h2>
                 <div id="debts-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
                     <p class="text-[11px] text-indigo-400 text-center py-6">جاري مزامنة السحابة...</p>
                 </div>
@@ -185,91 +173,65 @@
 
     </main>
 
-    <!-- نافذة تعديل الرصيد الأساسي -->
+    <!-- نافذة اختيار مصدر التسديد عند الضغط على زر تسديد -->
+    <div id="pay-debt-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-emerald-100 text-center">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-xl">💳</div>
+            <div class="space-y-1">
+                <h3 class="text-sm font-extrabold text-slate-800">اختر مصدر دفع هذا الدين</h3>
+                <p id="pay-debt-info" class="text-[11px] text-slate-500 font-bold"></p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="confirmPayDebt('base')" class="bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 cursor-pointer">من الرصيد الأساسي</button>
+                <button type="button" onclick="confirmPayDebt('savings')" class="bg-emerald-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-emerald-700 cursor-pointer">من المدخرات</button>
+            </div>
+            <button type="button" onclick="closePayDebtModal()" class="w-full bg-slate-100 text-slate-600 py-2.5 rounded-2xl font-bold text-xs cursor-pointer">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- النوافذ المنبثقة الأخرى -->
     <div id="balance-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
             <h3 class="text-sm font-extrabold text-slate-800">💰 تعديل الرصيد الأساسي</h3>
-            <p class="text-[11px] text-slate-500">أدخل إجمالي أموالك المتوفرة قبل خصم المصروفات:</p>
-            <input type="number" id="new-balance-input" placeholder="مثلاً: 1000000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
+            <input type="number" id="new-balance-input" placeholder="مثلاً: 1000000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
             <div class="flex gap-2 pt-2">
-                <button type="button" onclick="saveNewBalance()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ</button>
-                <button type="button" onclick="closeEditBalanceModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+                <button type="button" onclick="saveNewBalance()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs cursor-pointer">حفظ</button>
+                <button type="button" onclick="closeEditBalanceModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs cursor-pointer">إلغاء</button>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تعديل سقف الميزانية -->
     <div id="budget-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
             <h3 class="text-sm font-extrabold text-slate-800">🎯 تحديد سقف ميزانية الشهر</h3>
-            <p class="text-[11px] text-slate-500">أدخل الحد الأقصى للمصروفات المخطط لها هذا الشهر:</p>
-            <input type="number" id="new-budget-input" placeholder="مثلاً: 500000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
+            <input type="number" id="new-budget-input" placeholder="مثلاً: 500000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
             <div class="flex gap-2 pt-2">
-                <button type="button" onclick="saveNewBudget()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ السقف</button>
-                <button type="button" onclick="closeBudgetModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+                <button type="button" onclick="saveNewBudget()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs cursor-pointer">حفظ السقف</button>
+                <button type="button" onclick="closeBudgetModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs cursor-pointer">إلغاء</button>
             </div>
         </div>
     </div>
 
-    <!-- نافذة إضافة وتعديل المدخرات -->
     <div id="savings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-emerald-100">
-            <h3 class="text-sm font-extrabold text-slate-800">🏦 إضافة وتعديل المدخرات</h3>
-            <p class="text-[11px] text-slate-500">اختر الطريقة لإضافة مبلغ جديد أو تعديل إجمالي المدخرات:</p>
+            <h3 class="text-sm font-extrabold text-slate-800">🏦 إدارة المدخرات</h3>
             <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-600 block mb-1">إضافة مبلغ جديد للمدخرات الحالية:</label>
-                    <div class="flex gap-2">
-                        <input type="number" id="add-savings-input" placeholder="المبلغ المراد إضافته" class="w-full p-3 text-xs bg-emerald-50/50 border border-emerald-200 rounded-2xl text-slate-800 outline-none focus:border-emerald-500">
-                        <button type="button" onclick="addToSavings()" class="bg-emerald-600 text-white px-4 py-3 rounded-2xl font-bold text-xs hover:bg-emerald-700 transition cursor-pointer whitespace-nowrap">إيداع</button>
-                    </div>
+                <div class="flex gap-2">
+                    <input type="number" id="add-savings-input" placeholder="مبلغ للإيداع" class="w-full p-3 text-xs bg-emerald-50/50 border border-emerald-200 rounded-2xl text-slate-800 outline-none">
+                    <button type="button" onclick="addToSavings()" class="bg-emerald-600 text-white px-4 py-3 rounded-2xl font-bold text-xs cursor-pointer">إيداع</button>
                 </div>
-                <hr class="border-slate-100">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-600 block mb-1">تحديد إجمالي المدخرات مباشرة:</label>
-                    <input type="number" id="new-savings-input" placeholder="إجمالي المدخرات" class="w-full p-3 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
-                    <button type="button" onclick="saveNewSavings()" class="w-full mt-2 bg-slate-800 text-white py-2.5 rounded-2xl font-bold text-xs hover:bg-slate-900 transition cursor-pointer">تحديث الإجمالي</button>
-                </div>
+                <input type="number" id="new-savings-input" placeholder="إجمالي المدخرات الجديد" class="w-full p-3 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
+                <button type="button" onclick="saveNewSavings()" class="w-full bg-slate-800 text-white py-2.5 rounded-2xl font-bold text-xs cursor-pointer">تحديث الإجمالي</button>
             </div>
-            <div class="pt-2">
-                <button type="button" onclick="closeSavingsModal()" class="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إغلاق</button>
-            </div>
+            <button type="button" onclick="closeSavingsModal()" class="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs cursor-pointer">إغلاق</button>
         </div>
     </div>
 
-    <!-- نافذة اختيار طريقة تسديد دين مسجل مسبقاً -->
-    <div id="pay-debt-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-amber-100">
-            <h3 class="text-sm font-extrabold text-slate-800">💳 تسديد الدين أو السلفة</h3>
-            <p id="pay-debt-info" class="text-[11px] text-slate-500 font-semibold"></p>
-            <input type="hidden" id="pay-debt-id">
-            <input type="hidden" id="pay-debt-amount">
-            
-            <div class="bg-amber-50/70 p-3 rounded-2xl border border-amber-100 space-y-1.5">
-                <label class="text-[11px] font-bold text-slate-800 block">اختر مصدر الخصم لتسديد هذا الدين:</label>
-                <div class="flex flex-col gap-2 text-xs font-semibold pt-1">
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-xl border border-slate-200">
-                        <input type="radio" name="modal-payment-source" value="balance" checked class="accent-indigo-600"> خصم من الرصيد الأساسي
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-xl border border-emerald-200">
-                        <input type="radio" name="modal-payment-source" value="savings" class="accent-emerald-600"> خصم من المدخرات 🏦
-                    </label>
-                </div>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="confirmPayDebt()" class="flex-1 bg-amber-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-amber-700 transition cursor-pointer">تأكيد التسديد</button>
-                <button type="button" onclick="closePayDebtModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- جافاسكريبت وربط Realtime Database -->
+    <!-- كود الجافاسكريبت -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, remove, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // التحقق من حالة الجلسة عند التحميل
         if (sessionStorage.getItem("isLoggedIn") === "true") {
             document.getElementById('auth-modal').classList.add('hidden');
         }
@@ -277,20 +239,16 @@
         window.handleLogin = function(e) {
             e.preventDefault();
             const pass = document.getElementById('auth-password').value;
-            const errorText = document.getElementById('auth-error');
             if (pass === "Aa112233") {
                 sessionStorage.setItem("isLoggedIn", "true");
                 document.getElementById('auth-modal').classList.add('hidden');
             } else {
-                errorText.classList.remove('hidden');
+                document.getElementById('auth-error').classList.remove('hidden');
                 document.getElementById('auth-password').value = '';
             }
         }
 
-        const firebaseConfig = {
-            databaseURL: "https://buddget-28216-default-rtdb.firebaseio.com"
-        };
-
+        const firebaseConfig = { databaseURL: "https://buddget-28216-default-rtdb.firebaseio.com" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -299,54 +257,24 @@
         let baseBalance = 0;
         let monthlyBudget = 500000;
         let totalSavings = 0;
+        let activeDebtIdToPay = null;
+        let activeDebtAmountToPay = 0;
 
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
 
-        const connectedRef = ref(db, ".info/connected");
-        onValue(connectedRef, (snap) => {
-            const dot = document.getElementById('connection-dot');
-            const text = document.getElementById('connection-text');
-            if (snap.val() === true) {
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-300 animate-pulse";
-                if(text) text.innerText = "متصل";
-            } else {
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
-                if(text) text.innerText = "غير متصل";
-            }
-        });
-
-        onValue(ref(db, "settings/baseBalance"), (snapshot) => {
-            baseBalance = snapshot.exists() ? snapshot.val() : 0;
-            renderData();
-        });
-
-        onValue(ref(db, "settings/monthlyBudget"), (snapshot) => {
-            monthlyBudget = snapshot.exists() ? snapshot.val() : 500000;
-            renderData();
-        });
-
-        onValue(ref(db, "settings/totalSavings"), (snapshot) => {
-            totalSavings = snapshot.exists() ? snapshot.val() : 0;
-            renderData();
-        });
+        onValue(ref(db, "settings/baseBalance"), (s) => { baseBalance = s.exists() ? s.val() : 0; renderData(); });
+        onValue(ref(db, "settings/monthlyBudget"), (s) => { monthlyBudget = s.exists() ? s.val() : 500000; renderData(); });
+        onValue(ref(db, "settings/totalSavings"), (s) => { totalSavings = s.exists() ? s.val() : 0; renderData(); });
 
         onValue(ref(db, "expenses"), (snapshot) => {
             expensesData = [];
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    expensesData.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-            }
+            if (snapshot.exists()) snapshot.forEach(c => expensesData.push({ id: c.key, ...c.val() }));
             renderData();
         });
 
         onValue(ref(db, "debts"), (snapshot) => {
             debtsData = [];
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-            }
+            if (snapshot.exists()) snapshot.forEach(c => debtsData.push({ id: c.key, ...c.val() }));
             renderData();
         });
 
@@ -356,188 +284,119 @@
             const expTab = document.getElementById('tab-expenses');
             const debtTab = document.getElementById('tab-debts');
 
-            if (!expContent || !debtContent || !expTab || !debtTab) return;
-
             if (tab === 'expenses') {
                 expContent.classList.remove('hidden');
                 debtContent.classList.add('hidden');
-                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
-                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
-            } else if (tab === 'debts') {
+                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition flex items-center justify-center gap-2 cursor-pointer';
+                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition flex items-center justify-center gap-2 cursor-pointer';
+            } else {
                 debtContent.classList.remove('hidden');
                 expContent.classList.add('hidden');
-                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
-                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition flex items-center justify-center gap-2 cursor-pointer';
+                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition flex items-center justify-center gap-2 cursor-pointer';
             }
         };
 
-        window.openEditBalanceModal = function() {
-            document.getElementById('new-balance-input').value = baseBalance;
-            document.getElementById('balance-modal').classList.remove('hidden');
-        }
+        window.openEditBalanceModal = function() { document.getElementById('new-balance-input').value = baseBalance; document.getElementById('balance-modal').classList.remove('hidden'); }
         window.closeEditBalanceModal = function() { document.getElementById('balance-modal').classList.add('hidden'); }
-        window.saveNewBalance = async function() {
-            const val = parseFloat(document.getElementById('new-balance-input').value);
-            if (!isNaN(val)) {
-                await set(ref(db, "settings/baseBalance"), val);
-                closeEditBalanceModal();
-            }
-        }
+        window.saveNewBalance = async function() { const v = parseFloat(document.getElementById('new-balance-input').value); if (!isNaN(v)) { await set(ref(db, "settings/baseBalance"), v); closeEditBalanceModal(); } }
 
-        window.openBudgetModal = function() {
-            document.getElementById('new-budget-input').value = monthlyBudget;
-            document.getElementById('budget-modal').classList.remove('hidden');
-        }
+        window.openBudgetModal = function() { document.getElementById('new-budget-input').value = monthlyBudget; document.getElementById('budget-modal').classList.remove('hidden'); }
         window.closeBudgetModal = function() { document.getElementById('budget-modal').classList.add('hidden'); }
-        window.saveNewBudget = async function() {
-            const val = parseFloat(document.getElementById('new-budget-input').value);
-            if (!isNaN(val)) {
-                await set(ref(db, "settings/monthlyBudget"), val);
-                closeBudgetModal();
-            }
-        }
+        window.saveNewBudget = async function() { const v = parseFloat(document.getElementById('new-budget-input').value); if (!isNaN(v)) { await set(ref(db, "settings/monthlyBudget"), v); closeBudgetModal(); } }
 
-        window.openSavingsModal = function() {
-            document.getElementById('new-savings-input').value = totalSavings;
-            document.getElementById('add-savings-input').value = '';
-            document.getElementById('savings-modal').classList.remove('hidden');
-        }
+        window.openSavingsModal = function() { document.getElementById('new-savings-input').value = totalSavings; document.getElementById('add-savings-input').value = ''; document.getElementById('savings-modal').classList.remove('hidden'); }
         window.closeSavingsModal = function() { document.getElementById('savings-modal').classList.add('hidden'); }
-
-        window.addToSavings = async function() {
-            const addVal = parseFloat(document.getElementById('add-savings-input').value);
-            if (!isNaN(addVal) && addVal > 0) {
-                const updatedSavings = totalSavings + addVal;
-                await set(ref(db, "settings/totalSavings"), updatedSavings);
-                closeSavingsModal();
-            } else {
-                alert('يرجى إدخال مبلغ صحيح للإيداع');
-            }
-        }
-
-        window.saveNewSavings = async function() {
-            const val = parseFloat(document.getElementById('new-savings-input').value);
-            if (!isNaN(val)) {
-                await set(ref(db, "settings/totalSavings"), val);
-                closeSavingsModal();
-            }
-        }
+        window.addToSavings = async function() { const v = parseFloat(document.getElementById('add-savings-input').value); if (!isNaN(v) && v > 0) { await set(ref(db, "settings/totalSavings"), totalSavings + v); closeSavingsModal(); } }
+        window.saveNewSavings = async function() { const v = parseFloat(document.getElementById('new-savings-input').value); if (!isNaN(v)) { await set(ref(db, "settings/totalSavings"), v); closeSavingsModal(); } }
 
         window.addExpense = async function(e) {
             e.preventDefault();
-            const btn = document.getElementById('exp-btn');
-            btn.disabled = true; btn.innerText = 'جاري الحفظ...';
-            try {
-                await push(ref(db, "expenses"), {
-                    title: document.getElementById('exp-title').value,
-                    amount: parseFloat(document.getElementById('exp-amount').value),
-                    category: document.getElementById('exp-category').value,
-                    createdAt: Date.now()
-                });
-                document.getElementById('expense-form').reset();
-            } catch (error) { alert('خطأ: ' + error.message); }
-            finally { btn.disabled = false; btn.innerText = 'حفظ المصروف'; }
+            await push(ref(db, "expenses"), {
+                title: document.getElementById('exp-title').value,
+                amount: parseFloat(document.getElementById('exp-amount').value),
+                category: document.getElementById('exp-category').value,
+                createdAt: Date.now()
+            });
+            document.getElementById('expense-form').reset();
         }
 
-        window.addDebt = async function(e) {
+        window.addDebtOnly = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('debt-btn');
-            const amount = parseFloat(document.getElementById('debt-amount').value);
-            const source = document.querySelector('input[name="payment-source"]:checked').value;
-
-            if (source === 'savings' && amount > totalSavings) {
-                alert('عذراً، مبلغ المدخرات الحالي غير كافٍ لتسديد هذا الدين!');
-                return;
-            }
-
-            btn.disabled = true; btn.innerText = 'جاري الحفظ...';
+            btn.disabled = true; btn.innerText = 'جاري الإضافة...';
             try {
                 await push(ref(db, "debts"), {
                     name: document.getElementById('debt-name').value,
-                    amount: amount,
-                    source: source,
+                    amount: parseFloat(document.getElementById('debt-amount').value),
+                    isPaid: false,
                     createdAt: Date.now()
                 });
-
-                if (source === 'savings') {
-                    await set(ref(db, "settings/totalSavings"), totalSavings - amount);
-                }
-
                 document.getElementById('debt-form').reset();
-            } catch (error) { alert('خطأ: ' + error.message); }
-            finally { btn.disabled = false; btn.innerText = 'حفظ الدين والتسديد'; }
+            } finally {
+                btn.disabled = false; btn.innerText = 'حفظ الدين الجديد';
+            }
         }
 
-        // نافذة اختيار التسديد للدين الموجود
-        window.openPayDebtModal = function(id, name, amount) {
-            document.getElementById('pay-debt-id').value = id;
-            document.getElementById('pay-debt-amount').value = amount;
-            document.getElementById('pay-debt-info').innerText = `دين لصالح: ${name} بمبلغ ${amount.toLocaleString()} د.ع`;
-            document.getElementById('pay-debt-modal').classList.remove('hidden');
+        // عند الضغط على زر تسديد، نفتح نافذة نسأله بيها من وين يسدد
+        window.promptPayDebt = function(id, amount, isPaid) {
+            if (isPaid) {
+                // إذا كان مسدد أصلاً ونريد نلغي التسديد
+                update(ref(db, `debts/${id}`), { isPaid: false, paidAt: null, paidFrom: null });
+            } else {
+                activeDebtIdToPay = id;
+                activeDebtAmountToPay = amount;
+                document.getElementById('pay-debt-info').innerText = `المبلغ: ${amount.toLocaleString()} د.ع`;
+                document.getElementById('pay-debt-modal').classList.remove('hidden');
+            }
         }
+
         window.closePayDebtModal = function() {
             document.getElementById('pay-debt-modal').classList.add('hidden');
+            activeDebtIdToPay = null;
+            activeDebtAmountToPay = 0;
         }
 
-        window.confirmPayDebt = async function() {
-            const id = document.getElementById('pay-debt-id').value;
-            const amount = parseFloat(document.getElementById('pay-debt-amount').value);
-            const source = document.querySelector('input[name="modal-payment-source"]:checked').value;
+        // تأكيد التسديد مع خصم المبلغ من المكان المختار وتسجيل التاريخ
+        window.confirmPayDebt = async function(source) {
+            if (!activeDebtIdToPay) return;
 
-            if (source === 'savings' && amount > totalSavings) {
-                alert('عذراً، مبلغ المدخرات الحالي غير كافٍ لتسديد هذا الدين!');
-                return;
+            const now = new Date().toLocaleDateString('ar-IQ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            
+            // تحديث حالة الدين بالسحابة
+            await update(ref(db, `debts/${activeDebtIdToPay}`), {
+                isPaid: true,
+                paidAt: now,
+                paidFrom: source === 'base' ? 'الرصيد الأساسي' : 'المدخرات'
+            });
+
+            // خصم المبلغ من الحساب المناسب
+            if (source === 'base') {
+                // خصم من الرصيد الأساسي (عن طريق إضافته كمصروف أو إنقاص الرصيد الأساسي رأساً)
+                await set(ref(db, "settings/baseBalance"), baseBalance - activeDebtAmountToPay);
+            } else if (source === 'savings') {
+                // خصم من المدخرات
+                await set(ref(db, "settings/totalSavings"), Math.max(0, totalSavings - activeDebtAmountToPay));
             }
 
-            try {
-                // تحديث مصدر التسديد لهذا الدين في قاعدة البيانات
-                await update(ref(db, `debts/${id}`), { source: source });
+            closePayDebtModal();
+        }
 
-                // إذا كان الخصم من المدخرات، ننقصها
-                if (source === 'savings') {
-                    await set(ref(db, "settings/totalSavings"), totalSavings - amount);
-                }
-
-                closePayDebtModal();
-            } catch (error) {
-                alert('خطأ أثناء التسديد: ' + error.message);
-            }
+        window.deleteDebt = async function(id) {
+            if(confirm('حذف هذا الدين نهائياً؟')) await remove(ref(db, `debts/${id}`));
         }
 
         window.deleteExpense = async function(id) {
-            if(confirm('هل تريد حذف هذا المصروف؟')) {
-                await remove(ref(db, `expenses/${id}`));
-            }
-        }
-
-        window.deleteDebt = async function(id, amount, source) {
-            if(confirm('هل تريد حذف هذا الدين؟')) {
-                await remove(ref(db, `debts/${id}`));
-                if (source === 'savings') {
-                    await set(ref(db, "settings/totalSavings"), totalSavings + amount);
-                }
-            }
+            if(confirm('حذف هذا المصروف؟')) await remove(ref(db, `expenses/${id}`));
         }
 
         window.exportData = function() {
-            let csvContent = "\uFEFFالعنوان/الاسم,المبلغ,التصنيف/النوع,التاريخ\n";
-            expensesData.forEach(item => {
-                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                csvContent += `مصروف: ${item.title},${item.amount},${item.category},${dateStr}\n`;
-            });
-            debtsData.forEach(item => {
-                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                csvContent += `دين (من ${item.source === 'savings' ? 'المدخرات' : 'الرصيد'}): ${item.name},${item.amount},دين,${dateStr}\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            let csv = "\uFEFFالعنوان,المبلغ,النوع,التاريخ\n";
+            expensesData.forEach(i => csv += `مصروف: ${i.title},${i.amount},${i.category},${new Date(i.createdAt).toLocaleDateString('ar-IQ')}\n`);
+            debtsData.forEach(i => csv += `دين (${i.isPaid ? 'مسدد من ' + i.paidFrom : 'غير مسدد'}): ${i.name},${i.amount},دين,${new Date(i.createdAt).toLocaleDateString('ar-IQ')}\n`);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'smart_wallet_report.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const a = document.createElement('a'); a.href = url; a.download = 'wallet_report.csv'; a.click();
         }
 
         function renderData() {
@@ -546,27 +405,22 @@
             if(!expList || !debtList) return;
 
             expList.innerHTML = ''; debtList.innerHTML = '';
-
-            let totalExp = 0, totalDebtFromBalance = 0;
+            let totalExp = 0, totalUnpaidDebts = 0;
 
             if (expensesData.length === 0) {
                 expList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة</p>';
             } else {
                 expensesData.forEach(item => {
                     totalExp += item.amount;
-                    const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
                     expList.innerHTML += `
-                        <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
+                        <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 rounded-2xl border border-indigo-100 text-xs">
                             <div class="space-y-1">
                                 <p class="font-bold text-slate-800">${item.title}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-block text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md font-semibold">${item.category}</span>
-                                    <span class="text-[9px] text-slate-400">${dateStr}</span>
-                                </div>
+                                <span class="inline-block text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md">${item.category}</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <span class="font-black text-rose-600">-${item.amount.toLocaleString()} د.ع</span>
-                                <button type="button" onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer">🗑️</button>
+                                <button type="button" onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-rose-600 cursor-pointer">🗑️</button>
                             </div>
                         </div>
                     `;
@@ -577,52 +431,45 @@
                 debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون مسجلة</p>';
             } else {
                 debtsData.forEach(item => {
-                    if (item.source !== 'savings') {
-                        totalDebtFromBalance += item.amount;
-                    }
-                    const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                    const sourceText = item.source === 'savings' ? 'من المدخرات 🏦' : 'من الرصيد الأساسي';
-                    const sourceBadgeColor = item.source === 'savings' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                    const isPaid = item.isPaid === true;
+                    if (!isPaid) totalUnpaidDebts += item.amount;
 
                     debtList.innerHTML += `
-                        <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
-                            <div class="space-y-1">
-                                <p class="font-bold text-slate-800">${item.name}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-block text-[9px] ${sourceBadgeColor} px-2 py-0.5 rounded-md font-semibold">${sourceText}</span>
-                                    <span class="text-[9px] text-slate-400">${dateStr}</span>
+                        <div class="flex justify-between items-center p-3.5 ${isPaid ? 'bg-emerald-50/70 border-emerald-200' : 'bg-indigo-50/50 border-indigo-100'} rounded-2xl border text-xs">
+                            <div class="space-y-1.5">
+                                <p class="font-bold ${isPaid ? 'line-through text-slate-500' : 'text-slate-800'}">${item.name}</p>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-bold ${isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                        ${isPaid ? 'تم التسديد ✅' : 'غير مسدد ⏳'}
+                                    </span>
+                                    ${isPaid && item.paidAt ? `<span class="text-[9px] text-slate-500">📅 ${item.paidAt} (${item.paidFrom})</span>` : ''}
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="font-black text-amber-600">${item.amount.toLocaleString()} د.ع</span>
-                                <button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" title="تغيير طريقة التسديد" class="text-slate-400 hover:text-indigo-600 transition p-1 cursor-pointer">💳</button>
-                                <button type="button" onclick="deleteDebt('${item.id}', ${item.amount}, '${item.source}')" class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer">🗑️</button>
+                                <span class="font-black ${isPaid ? 'text-slate-400 line-through' : 'text-amber-600'}">${item.amount.toLocaleString()} د.ع</span>
+                                <button type="button" onclick="promptPayDebt('${item.id}', ${item.amount}, ${isPaid})" class="px-2.5 py-1.5 rounded-xl font-bold text-[10px] cursor-pointer ${isPaid ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-emerald-600 text-white hover:bg-emerald-700'}">
+                                    ${isPaid ? 'إلغاء' : 'تسديد'}
+                                </button>
+                                <button type="button" onclick="deleteDebt('${item.id}')" class="text-slate-400 hover:text-rose-600 cursor-pointer">🗑️</button>
                             </div>
                         </div>
                     `;
                 });
             }
 
-            const netBalance = baseBalance - totalExp - totalDebtFromBalance;
-
+            const netBalance = baseBalance - totalExp;
             document.getElementById('net-balance').innerText = netBalance.toLocaleString() + ' د.ع';
             document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
             document.getElementById('total-expenses').innerText = totalExp.toLocaleString() + ' د.ع';
-            document.getElementById('total-debts').innerText = totalDebtFromBalance.toLocaleString() + ' د.ع';
+            document.getElementById('total-debts').innerText = totalUnpaidDebts.toLocaleString() + ' د.ع';
             document.getElementById('total-savings').innerText = totalSavings.toLocaleString() + ' د.ع';
-
             document.getElementById('budget-limit-text').innerText = monthlyBudget.toLocaleString();
-            const progressPercent = monthlyBudget > 0 ? Math.min(Math.round((totalExp / monthlyBudget) * 100), 100) : 0;
-            const progressBar = document.getElementById('budget-progress-bar');
-            if (progressBar) {
-                progressBar.style.width = progressPercent + '%';
-                if (progressPercent >= 90) {
-                    progressBar.className = 'bg-rose-500 h-full transition-all duration-500';
-                } else if (progressPercent >= 75) {
-                    progressBar.className = 'bg-amber-400 h-full transition-all duration-500';
-                } else {
-                    progressBar.className = 'bg-emerald-400 h-full transition-all duration-500';
-                }
+            
+            const p = monthlyBudget > 0 ? Math.min(Math.round((totalExp / monthlyBudget) * 100), 100) : 0;
+            const bar = document.getElementById('budget-progress-bar');
+            if (bar) {
+                bar.style.width = p + '%';
+                bar.className = p >= 90 ? 'bg-rose-500 h-full transition-all' : p >= 75 ? 'bg-amber-400 h-full transition-all' : 'bg-emerald-400 h-full transition-all';
             }
         }
     </script>
