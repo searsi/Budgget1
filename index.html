@@ -83,17 +83,21 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center">
+                <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-white/20 text-center">
                     <div>
-                        <span class="text-[10px] text-indigo-100 font-medium block">المصروفات</span>
+                        <span class="text-[9px] text-indigo-100 font-medium block">المصروفات</span>
                         <p id="total-expenses" class="text-xs font-black tracking-tight text-rose-200 mt-0.5">0 د.ع</p>
                     </div>
                     <div>
-                        <span class="text-[10px] text-indigo-100 font-medium block">إجمالي الديون</span>
+                        <span class="text-[9px] text-indigo-100 font-medium block">الالتزامات</span>
+                        <p id="total-obligations" class="text-xs font-black tracking-tight text-sky-200 mt-0.5">0 د.ع</p>
+                    </div>
+                    <div>
+                        <span class="text-[9px] text-indigo-100 font-medium block">الديون</span>
                         <p id="total-debts" class="text-xs font-black tracking-tight text-amber-200 mt-0.5">0 د.ع</p>
                     </div>
-                    <div onclick="openSavingsModal()" class="cursor-pointer group bg-white/10 hover:bg-white/20 p-1.5 rounded-2xl transition">
-                        <span class="text-[10px] text-emerald-200 font-medium block flex items-center justify-center gap-1">المدخرات <span>✏️</span></span>
+                    <div onclick="openSavingsModal()" class="cursor-pointer group bg-white/10 hover:bg-white/20 p-1 rounded-2xl transition">
+                        <span class="text-[9px] text-emerald-200 font-medium block flex items-center justify-center gap-0.5">المدخرات <span>✏️</span></span>
                         <p id="total-savings" class="text-xs font-black tracking-tight text-emerald-300 mt-0.5">0 د.ع</p>
                     </div>
                 </div>
@@ -102,11 +106,14 @@
 
         <!-- التبويبات الحديثة -->
         <div class="bg-indigo-100/80 p-1.5 rounded-2xl flex gap-1 shadow-inner border border-indigo-200/60">
-            <button type="button" onclick="switchTab('expenses')" id="tab-expenses" class="flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+            <button type="button" onclick="switchTab('expenses')" id="tab-expenses" class="flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                 <span>💸</span> المصروفات
             </button>
-            <button type="button" onclick="switchTab('debts')" id="tab-debts" class="flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                <span>📑</span> الديون والسلف
+            <button type="button" onclick="switchTab('obligations')" id="tab-obligations" class="flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>📌</span> الالتزامات
+            </button>
+            <button type="button" onclick="switchTab('debts')" id="tab-debts" class="flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>📑</span> الديون
             </button>
         </div>
 
@@ -118,14 +125,14 @@
                 </h2>
                 <form id="expense-form" onsubmit="addExpense(event)" class="space-y-3.5">
                     <div>
-                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: إنترنت، تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <input type="number" id="exp-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
                         <select id="exp-category" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-700 focus:bg-white focus:border-indigo-500 outline-none transition">
                             <option value="طعام">طعام ومشروبات</option>
                             <option value="نقل">نقل ومواصلات</option>
-                            <option value="فواتير">فواتير واشتراكات</option>
+                            <option value="فواتير">فواتير</option>
                             <option value="أخرى">أخرى</option>
                         </select>
                     </div>
@@ -142,6 +149,38 @@
             </div>
         </div>
 
+        <!-- قائمة الالتزامات (الجديدة) -->
+        <div id="content-obligations" class="hidden space-y-4">
+            <div class="glass-card p-5 rounded-3xl shadow-sm">
+                <h2 class="text-xs font-extrabold mb-4 text-sky-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-black">+</span> تسجيل التزام شهري جديد
+                </h2>
+                <form id="obligation-form" onsubmit="addObligation(event)" class="space-y-3.5">
+                    <div>
+                        <input type="text" id="ob-title" placeholder="اسم الالتزام (مثلاً: اشتراك نت، خط باص، ماء، كهرباء)" required class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-800 placeholder-sky-400 focus:bg-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="ob-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-800 placeholder-sky-400 focus:bg-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none transition">
+                        <select id="ob-category" class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-700 focus:bg-white focus:border-sky-500 outline-none transition">
+                            <option value="نت واشتراكات">نت واشتراكات</option>
+                            <option value="نقل وباص">نقل وباص</option>
+                            <option value="خدمات ماء وكهرباء">ماء وكهرباء</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="ob-btn" class="w-full bg-gradient-to-r from-sky-600 to-blue-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-sky-200 cursor-pointer">حفظ الالتزام</button>
+                </form>
+            </div>
+
+            <!-- سجل الالتزامات -->
+            <div class="glass-card p-5 rounded-3xl shadow-sm">
+                <h2 class="text-xs font-extrabold mb-3.5 text-sky-900">📋 قائمة الالتزامات الشهرية</h2>
+                <div id="obligations-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                    <p class="text-[11px] text-sky-400 text-center py-6">جاري مزامنة السحابة...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- قائمة الديون والسلف -->
         <div id="content-debts" class="hidden space-y-4">
             <div class="glass-card p-5 rounded-3xl shadow-sm space-y-4">
@@ -154,9 +193,8 @@
                     </button>
                 </div>
                 <form id="debt-form" onsubmit="addDebt(event)" class="space-y-3.5">
-                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة أو الشهر (مثلاً: تسديد شهر 9)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
+                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة (مثلاً: تسديد شهر 9)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
                     <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
-                    
                     <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين (بدون قيود)</button>
                 </form>
             </div>
@@ -271,6 +309,7 @@
         const db = getDatabase(app);
 
         let expensesData = [];
+        let obligationsData = [];
         let debtsData = [];
         let baseBalance = 0;
         let monthlyBudget = 500000;
@@ -317,6 +356,16 @@
             renderData();
         });
 
+        onValue(ref(db, "obligations"), (snapshot) => {
+            obligationsData = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    obligationsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+            }
+            renderData();
+        });
+
         onValue(ref(db, "debts"), (snapshot) => {
             debtsData = [];
             if (snapshot.exists()) {
@@ -329,22 +378,30 @@
 
         window.switchTab = function(tab) {
             const expContent = document.getElementById('content-expenses');
+            const obContent = document.getElementById('content-obligations');
             const debtContent = document.getElementById('content-debts');
             const expTab = document.getElementById('tab-expenses');
+            const obTab = document.getElementById('tab-obligations');
             const debtTab = document.getElementById('tab-debts');
 
-            if (!expContent || !debtContent || !expTab || !debtTab) return;
+            if (!expContent || !obContent || !debtContent || !expTab || !obTab || !debtTab) return;
+
+            expContent.classList.add('hidden');
+            obContent.classList.add('hidden');
+            debtContent.classList.add('hidden');
+            expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
+            obTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
+            debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
 
             if (tab === 'expenses') {
                 expContent.classList.remove('hidden');
-                debtContent.classList.add('hidden');
-                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
-                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
+            } else if (tab === 'obligations') {
+                obContent.classList.remove('hidden');
+                obTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-sky-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
             } else if (tab === 'debts') {
                 debtContent.classList.remove('hidden');
-                expContent.classList.add('hidden');
-                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
-                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-amber-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer';
             }
         };
 
@@ -415,6 +472,22 @@
             finally { btn.disabled = false; btn.innerText = 'حفظ المصروف'; }
         }
 
+        window.addObligation = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('ob-btn');
+            btn.disabled = true; btn.innerText = 'جاري الحفظ...';
+            try {
+                await push(ref(db, "obligations"), {
+                    title: document.getElementById('ob-title').value,
+                    amount: parseFloat(document.getElementById('ob-amount').value),
+                    category: document.getElementById('ob-category').value,
+                    createdAt: Date.now()
+                });
+                document.getElementById('obligation-form').reset();
+            } catch (error) { alert('خطأ: ' + error.message); }
+            finally { btn.disabled = false; btn.innerText = 'حفظ الالتزام'; }
+        }
+
         window.addDebt = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('debt-btn');
@@ -431,6 +504,12 @@
                 document.getElementById('debt-form').reset();
             } catch (error) { alert('خطأ: ' + error.message); }
             finally { btn.disabled = false; btn.innerText = 'حفظ الدين (بدون قيود)'; }
+        }
+
+        window.deleteObligation = async function(id) {
+            if(confirm('هل تريد حذف هذا الالتزام؟')) {
+                await remove(ref(db, `obligations/${id}`));
+            }
         }
 
         window.deleteDebt = async function(id) {
@@ -461,8 +540,6 @@
                 await set(ref(db, "settings/totalSavings"), totalSavings - amount);
             }
 
-            // تحديث الدين بإضافة تاريخ التسديد وحالته أو حذفه/نقله
-            // بما أننا نريد إظهار تاريخ التسديد، سنقوم بتحديث كائن الدين في قاعدة البيانات
             await set(ref(db, `debts/${id}/paidAt`), paidDate);
             await set(ref(db, `debts/${id}/paidSource`), source);
 
@@ -481,6 +558,10 @@
                 const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
                 csvContent += `مصروف: ${item.title},${item.amount},${item.category},${dateStr}\n`;
             });
+            obligationsData.forEach(item => {
+                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
+                csvContent += `التزام: ${item.title},${item.amount},${item.category},${dateStr}\n`;
+            });
             debtsData.forEach(item => {
                 const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
                 csvContent += `دين: ${item.name},${item.amount},دين,${dateStr}\n`;
@@ -498,12 +579,13 @@
 
         function renderData() {
             const expList = document.getElementById('expenses-list');
+            const obList = document.getElementById('obligations-list');
             const debtList = document.getElementById('debts-list');
-            if(!expList || !debtList) return;
+            if(!expList || !obList || !debtList) return;
 
-            expList.innerHTML = ''; debtList.innerHTML = '';
+            expList.innerHTML = ''; obList.innerHTML = ''; debtList.innerHTML = '';
 
-            let totalExp = 0, totalDebtsCount = 0;
+            let totalExp = 0, totalOb = 0, totalDebtsCount = 0;
 
             if (expensesData.length === 0) {
                 expList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة</p>';
@@ -521,8 +603,32 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="font-black text-rose-600">-${item.amount.toLocaleString()} د.ع</span>
-                                <button type="button" onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer">🗑️</button>
+                                <span class="font-black text-rose-600">${item.amount.toLocaleString()} د.ع</span>
+                                <button type="button" onclick="deleteExpense('${item.id}')" class="text-rose-400 hover:text-rose-600 text-xs p-1 cursor-pointer">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (obligationsData.length === 0) {
+                obList.innerHTML = '<p class="text-[11px] text-sky-400 text-center py-6">لا توجد التزامات مسجلة</p>';
+            } else {
+                obligationsData.forEach(item => {
+                    totalOb += item.amount;
+                    const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
+                    obList.innerHTML += `
+                        <div class="flex justify-between items-center p-3.5 bg-sky-50/50 hover:bg-sky-50 rounded-2xl border border-sky-100 transition text-xs">
+                            <div class="space-y-1">
+                                <p class="font-bold text-slate-800">${item.title}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-md font-semibold">${item.category}</span>
+                                    <span class="text-[9px] text-slate-400">${dateStr}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="font-black text-sky-600">${item.amount.toLocaleString()} د.ع</span>
+                                <button type="button" onclick="deleteObligation('${item.id}')" class="text-rose-400 hover:text-rose-600 text-xs p-1 cursor-pointer">🗑️</button>
                             </div>
                         </div>
                     `;
@@ -530,51 +636,56 @@
             }
 
             if (debtsData.length === 0) {
-                debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون مسجلة في الأرشيف</p>';
+                debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون أو سلف مسجلة</p>';
             } else {
                 debtsData.forEach(item => {
-                    if (!item.paidAt) {
+                    const isPaid = item.paidAt ? true : false;
+                    if (!isPaid) {
                         totalDebtsCount += item.amount;
                     }
                     const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                    const paidInfo = item.paidAt ? `<span class="text-[9px] text-emerald-600 font-bold block">تم التسديد في: ${new Date(item.paidAt).toLocaleDateString('ar-IQ')} (${item.paidSource === 'base' ? 'الأساسي' : 'المدخرات'})</span>` : '';
-
+                    const paidDateStr = isPaid ? new Date(item.paidAt).toLocaleDateString('ar-IQ') : '';
+                    
                     debtList.innerHTML += `
-                        <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
+                        <div class="flex justify-between items-center p-3.5 ${isPaid ? 'bg-emerald-50/50 border-emerald-100' : 'bg-amber-50/50 border-amber-100'} hover:opacity-90 rounded-2xl border transition text-xs">
                             <div class="space-y-1">
                                 <p class="font-bold text-slate-800">${item.name}</p>
-                                <span class="text-[9px] text-slate-400">${dateStr}</span>
-                                ${paidInfo}
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-[9px] text-slate-400">${dateStr}</span>
+                                    ${isPaid ? `<span class="inline-block text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md font-semibold">مسدد (${item.paidSource === 'base' ? 'الرصيد' : 'المدخرات'}) في ${paidDateStr}</span>` : `<span class="inline-block text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-semibold">غير مسدد</span>`}
+                                </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="font-black ${item.paidAt ? 'text-slate-400 line-through' : 'text-amber-600'}">${item.amount.toLocaleString()} د.ع</span>
-                                ${!item.paidAt ? `<button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-xl text-[10px] font-bold hover:bg-emerald-200 transition cursor-pointer">تسديد</button>` : ''}
-                                <button type="button" onclick="deleteDebt('${item.id}')" class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer">🗑️</button>
+                                <span class="font-black ${isPaid ? 'text-emerald-600 line-through' : 'text-amber-600'}">${item.amount.toLocaleString()} د.ع</span>
+                                ${!isPaid ? `<button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" class="bg-emerald-600 text-white px-2.5 py-1.5 rounded-xl font-bold text-[10px] hover:bg-emerald-700 transition cursor-pointer">تسديد</button>` : ''}
+                                <button type="button" onclick="deleteDebt('${item.id}')" class="text-rose-400 hover:text-rose-600 text-xs p-1 cursor-pointer">🗑️</button>
                             </div>
                         </div>
                     `;
                 });
             }
 
-            const netBalance = baseBalance - totalExp;
-
-            document.getElementById('net-balance').innerText = netBalance.toLocaleString() + ' د.ع';
+            // حساب الرصيد الصافي الحقيقي (الرصيد الأساسي - المصروفات - الالتزامات)
+            const netVal = baseBalance - totalExp - totalOb;
+            document.getElementById('net-balance').innerText = netVal.toLocaleString() + ' د.ع';
             document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
             document.getElementById('total-expenses').innerText = totalExp.toLocaleString() + ' د.ع';
+            document.getElementById('total-obligations').innerText = totalOb.toLocaleString() + ' د.ع';
             document.getElementById('total-debts').innerText = totalDebtsCount.toLocaleString() + ' د.ع';
             document.getElementById('total-savings').innerText = totalSavings.toLocaleString() + ' د.ع';
 
             document.getElementById('budget-limit-text').innerText = monthlyBudget.toLocaleString();
-            const progressPercent = monthlyBudget > 0 ? Math.min(Math.round((totalExp / monthlyBudget) * 100), 100) : 0;
-            const progressBar = document.getElementById('budget-progress-bar');
-            if (progressBar) {
-                progressBar.style.width = progressPercent + '%';
-                if (progressPercent >= 90) {
-                    progressBar.className = 'bg-rose-500 h-full transition-all duration-500';
-                } else if (progressPercent >= 75) {
-                    progressBar.className = 'bg-amber-400 h-full transition-all duration-500';
+            let percent = monthlyBudget > 0 ? (totalExp / monthlyBudget) * 100 : 0;
+            if (percent > 100) percent = 100;
+            const bar = document.getElementById('budget-progress-bar');
+            if (bar) {
+                bar.style.width = percent + '%';
+                if (percent >= 90) {
+                    bar.className = "bg-rose-500 h-full transition-all duration-500";
+                } else if (percent >= 70) {
+                    bar.className = "bg-amber-400 h-full transition-all duration-500";
                 } else {
-                    progressBar.className = 'bg-emerald-400 h-full transition-all duration-500';
+                    bar.className = "bg-emerald-400 h-full transition-all duration-500";
                 }
             }
         }
