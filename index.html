@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محفظتي الذكية - Realtime Database</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Cairo Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; background: #eef2ff; }
@@ -14,6 +16,7 @@
 </head>
 <body class="text-slate-800 pb-28">
 
+    <!-- الهيدر -->
     <header class="bg-gradient-to-l from-indigo-600 to-blue-600 text-white p-5 sticky top-0 z-50 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -35,8 +38,10 @@
         </div>
     </header>
 
+    <!-- المحتوى الرئيسي -->
     <main class="max-w-md mx-auto p-4 space-y-5">
 
+        <!-- بطاقة المحفظة والرصيد -->
         <section class="relative overflow-hidden rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-blue-600 p-6 text-white custom-shadow">
             <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
             <div class="relative z-10 space-y-4">
@@ -51,6 +56,7 @@
                     <p class="text-[10px] text-indigo-200 mt-0.5">الرصيد الأساسي: <span id="base-balance-text">0</span> د.ع</p>
                 </div>
 
+                <!-- شريط تقدم الميزانية -->
                 <div class="space-y-1.5 pt-2 border-t border-white/20">
                     <div class="flex justify-between text-[11px]">
                         <span class="text-indigo-100 font-medium">ميزانية الشهر المحددة: <span id="budget-limit-text" class="font-bold">0</span> د.ع</span>
@@ -74,6 +80,7 @@
             </div>
         </section>
 
+        <!-- التبويبات الحديثة -->
         <div class="bg-indigo-100/80 p-1.5 rounded-2xl flex gap-1 shadow-inner border border-indigo-200/60">
             <button type="button" onclick="switchTab('expenses')" id="tab-expenses" class="flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                 <span>💸</span> المصروفات
@@ -83,6 +90,7 @@
             </button>
         </div>
 
+        <!-- قائمة المصروفات -->
         <div id="content-expenses" class="space-y-4">
             <div class="glass-card p-5 rounded-3xl shadow-sm">
                 <h2 class="text-xs font-extrabold mb-4 text-indigo-900 flex items-center gap-2">
@@ -90,3 +98,359 @@
                 </h2>
                 <form id="expense-form" onsubmit="addExpense(event)" class="space-y-3.5">
                     <div>
+                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: إنترنت، تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="exp-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                        <select id="exp-category" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-700 focus:bg-white focus:border-indigo-500 outline-none transition">
+                            <option value="طعام">طعام ومشروبات</option>
+                            <option value="نقل">نقل ومواصلات</option>
+                            <option value="فواتير">فواتير واشتراكات</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="exp-btn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-indigo-200 cursor-pointer">حفظ المصروف</button>
+                </form>
+            </div>
+
+            <!-- سجل المصروفات -->
+            <div class="glass-card p-5 rounded-3xl shadow-sm">
+                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل المصروفات</h2>
+                <div id="expenses-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                    <p class="text-[11px] text-indigo-400 text-center py-6">جاري مزامنة السحابة...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة الديون -->
+        <div id="content-debts" class="hidden space-y-4">
+            <div class="glass-card p-5 rounded-3xl shadow-sm">
+                <h2 class="text-xs font-extrabold mb-4 text-indigo-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> إضافة دين جديد (عليك)
+                </h2>
+                <form id="debt-form" onsubmit="addDebt(event)" class="space-y-3.5">
+                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة الدائنة" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
+                    <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
+                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين</button>
+                </form>
+            </div>
+
+            <!-- سجل الديون -->
+            <div class="glass-card p-5 rounded-3xl shadow-sm">
+                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل الديون (بذمتك)</h2>
+                <div id="debts-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                    <p class="text-[11px] text-indigo-400 text-center py-6">جاري مزامنة السحابة...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- نافذة تعديل الرصيد الأساسي -->
+    <div id="balance-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
+            <h3 class="text-sm font-extrabold text-slate-800">💰 تعديل الرصيد الأساسي</h3>
+            <p class="text-[11px] text-slate-500">أدخل إجمالي أموالك المتوفرة قبل خصم المصروفات:</p>
+            <input type="number" id="new-balance-input" placeholder="مثلاً: 1000000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="saveNewBalance()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ</button>
+                <button type="button" onclick="closeEditBalanceModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل سقف الميزانية -->
+    <div id="budget-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
+            <h3 class="text-sm font-extrabold text-slate-800">🎯 تحديد سقف ميزانية الشهر</h3>
+            <p class="text-[11px] text-slate-500">أدخل الحد الأقصى للمصروفات المخطط لها هذا الشهر:</p>
+            <input type="number" id="new-budget-input" placeholder="مثلاً: 500000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="saveNewBudget()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ السقف</button>
+                <button type="button" onclick="closeBudgetModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- جافاسكريبت وربط Realtime Database الآمن -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, remove, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // إعدادات قاعدة بياناتك المباشرة برابط آمن (HTTPS)
+        const firebaseConfig = {
+            databaseURL: "https://buddget-28216-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let expensesData = [];
+        let debtsData = [];
+        let baseBalance = 0;
+        let monthlyBudget = 500000;
+
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+
+        // مؤشر الاتصال الحقيقي بـ Realtime Database
+        const connectedRef = ref(db, ".info/connected");
+        onValue(connectedRef, (snap) => {
+            const dot = document.getElementById('connection-dot');
+            const text = document.getElementById('connection-text');
+            if (snap.val() === true) {
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-300 animate-pulse";
+                if(text) text.innerText = "متصل";
+            } else {
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
+                if(text) text.innerText = "غير متصل";
+            }
+        });
+
+        // قراءة الرصيد الأساسي من السحابة
+        onValue(ref(db, "settings/baseBalance"), (snapshot) => {
+            if (snapshot.exists()) {
+                baseBalance = snapshot.val();
+            } else {
+                baseBalance = 0;
+            }
+            renderData();
+        });
+
+        // قراءة سقف الميزانية من السحابة
+        onValue(ref(db, "settings/monthlyBudget"), (snapshot) => {
+            if (snapshot.exists()) {
+                monthlyBudget = snapshot.val();
+            } else {
+                monthlyBudget = 500000;
+            }
+            renderData();
+        });
+
+        // قراءة المصروفات من السحابة
+        onValue(ref(db, "expenses"), (snapshot) => {
+            expensesData = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    expensesData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+            }
+            renderData();
+        });
+
+        // قراءة الديون من السحابة
+        onValue(ref(db, "debts"), (snapshot) => {
+            debtsData = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+            }
+            renderData();
+        });
+
+        // دالة تبديل التبويبات المتاحة عالمياً
+        window.switchTab = function(tab) {
+            const expContent = document.getElementById('content-expenses');
+            const debtContent = document.getElementById('content-debts');
+            const expTab = document.getElementById('tab-expenses');
+            const debtTab = document.getElementById('tab-debts');
+
+            if (!expContent || !debtContent || !expTab || !debtTab) return;
+
+            if (tab === 'expenses') {
+                expContent.classList.remove('hidden');
+                debtContent.classList.add('hidden');
+                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+            } else if (tab === 'debts') {
+                debtContent.classList.remove('hidden');
+                expContent.classList.add('hidden');
+                debtTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+                expTab.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer';
+            }
+        };
+
+        // النوافذ والأزرار الأخرى
+        window.openEditBalanceModal = function() {
+            const input = document.getElementById('new-balance-input');
+            if(input) input.value = baseBalance;
+            const modal = document.getElementById('balance-modal');
+            if(modal) modal.classList.remove('hidden');
+        }
+
+        window.closeEditBalanceModal = function() {
+            const modal = document.getElementById('balance-modal');
+            if(modal) modal.classList.add('hidden');
+        }
+
+        window.saveNewBalance = async function() {
+            const input = document.getElementById('new-balance-input');
+            const val = parseFloat(input ? input.value : 0);
+            if (!isNaN(val)) {
+                try {
+                    await set(ref(db, "settings/baseBalance"), val);
+                    closeEditBalanceModal();
+                } catch (error) { alert('خطأ أثناء الحفظ: ' + error.message); }
+            } else { alert('يرجى إدخال مبلغ صحيح'); }
+        }
+
+        window.openBudgetModal = function() {
+            const input = document.getElementById('new-budget-input');
+            if(input) input.value = monthlyBudget;
+            const modal = document.getElementById('budget-modal');
+            if(modal) modal.classList.remove('hidden');
+        }
+
+        window.closeBudgetModal = function() {
+            const modal = document.getElementById('budget-modal');
+            if(modal) modal.classList.add('hidden');
+        }
+
+        window.saveNewBudget = async function() {
+            const input = document.getElementById('new-budget-input');
+            const val = parseFloat(input ? input.value : 0);
+            if (!isNaN(val)) {
+                try {
+                    await set(ref(db, "settings/monthlyBudget"), val);
+                    closeBudgetModal();
+                } catch (error) { alert('خطأ أثناء الحفظ: ' + error.message); }
+            } else { alert('يرجى إدخال سقف ميزانية صحيح'); }
+        }
+
+        window.addExpense = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('exp-btn');
+            btn.disabled = true; btn.innerText = 'جاري الحفظ...';
+            try {
+                await push(ref(db, "expenses"), {
+                    title: document.getElementById('exp-title').value,
+                    amount: parseFloat(document.getElementById('exp-amount').value),
+                    category: document.getElementById('exp-category').value,
+                    createdAt: Date.now()
+                });
+                document.getElementById('expense-form').reset();
+            } catch (error) { alert('خطأ: ' + error.message); }
+            finally { btn.disabled = false; btn.innerText = 'حفظ المصروف'; }
+        }
+
+        window.addDebt = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('debt-btn');
+            btn.disabled = true; btn.innerText = 'جاري الحفظ...';
+            try {
+                await push(ref(db, "debts"), {
+                    name: document.getElementById('debt-name').value,
+                    amount: parseFloat(document.getElementById('debt-amount').value),
+                    createdAt: Date.now()
+                });
+                document.getElementById('debt-form').reset();
+            } catch (error) { alert('خطأ: ' + error.message); }
+            finally { btn.disabled = false; btn.innerText = 'حفظ الدين'; }
+        }
+
+        window.deleteExpense = async function(id) {
+            if(confirm('هل تريد حذف هذا المصروف؟')) {
+                await remove(ref(db, `expenses/${id}`));
+            }
+        }
+
+        window.deleteDebt = async function(id) {
+            if(confirm('هل تريد حذف هذا الدين؟')) {
+                await remove(ref(db, `debts/${id}`));
+            }
+        }
+
+        window.exportData = function() {
+            let csvContent = "\uFEFFالعنوان/الاسم,المبلغ,التصنيف/النوع,التاريخ\n";
+            expensesData.forEach(item => {
+                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
+                csvContent += `مصروف: ${item.title},${item.amount},${item.category},${dateStr}\n`;
+            });
+            debtsData.forEach(item => {
+                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
+                csvContent += `دين: ${item.name},${item.amount},بذمته,${dateStr}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'smart_wallet_report.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function renderData() {
+            const expList = document.getElementById('expenses-list');
+            const debtList = document.getElementById('debts-list');
+            if(!expList || !debtList) return;
+
+            expList.innerHTML = ''; debtList.innerHTML = '';
+
+            let totalExp = 0, totalDebt = 0;
+
+            if (expensesData.length === 0) {
+                expList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة</p>';
+            } else {
+                expensesData.forEach(item => {
+                    totalExp += item.amount;
+                    expList.innerHTML += `
+                        <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
+                            <div class="space-y-1">
+                                <p class="font-bold text-slate-800">${item.title}</p>
+                                <span class="inline-block text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md font-semibold">${item.category}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="font-black text-rose-600">${item.amount.toLocaleString()} د.ع</span>
+                                <button type="button" onclick="deleteExpense('${item.id}')" class="w-7 h-7 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition cursor-pointer">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (debtsData.length === 0) {
+                debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون مسجلة</p>';
+            } else {
+                debtsData.forEach(item => {
+                    totalDebt += item.amount;
+                    debtList.innerHTML += `
+                        <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
+                            <div class="space-y-1">
+                                <p class="font-bold text-slate-800">${item.name}</p>
+                                <span class="inline-block text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-semibold">دين بذمتك</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="font-black text-amber-600">${item.amount.toLocaleString()} د.ع</span>
+                                <button type="button" onclick="deleteDebt('${item.id}')" class="w-7 h-7 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition cursor-pointer">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            let netBalance = baseBalance - totalExp - totalDebt;
+
+            document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
+            document.getElementById('net-balance').innerText = netBalance.toLocaleString() + ' د.ع';
+            document.getElementById('total-expenses').innerText = totalExp.toLocaleString() + ' د.ع';
+            document.getElementById('total-debts').innerText = totalDebt.toLocaleString() + ' د.ع';
+
+            document.getElementById('budget-limit-text').innerText = monthlyBudget.toLocaleString();
+            let progressPercent = monthlyBudget > 0 ? Math.min((totalExp / monthlyBudget) * 100, 100) : 0;
+            const progressBar = document.getElementById('budget-progress-bar');
+            if(progressBar) {
+                progressBar.style.width = progressPercent + '%';
+                if (progressPercent > 85) {
+                    progressBar.className = 'bg-rose-400 h-full transition-all duration-500';
+                } else if (progressPercent > 50) {
+                    progressBar.className = 'bg-amber-400 h-full transition-all duration-500';
+                } else {
+                    progressBar.className = 'bg-emerald-400 h-full transition-all duration-500';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
