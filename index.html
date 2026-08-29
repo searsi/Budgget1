@@ -16,24 +16,58 @@
 </head>
 <body class="text-slate-800 pb-28">
 
+    <!-- واجهة تسجيل الدخول (تظهر افتراضياً) -->
+    <div id="login-screen" class="fixed inset-0 bg-indigo-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-7 max-w-sm w-full shadow-2xl space-y-6 border border-indigo-200">
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-blue-600 text-white rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-lg">💎</div>
+                <h2 class="text-lg font-black text-indigo-950">تسجيل الدخول إلى المحفظة</h2>
+                <p class="text-[11px] text-slate-500">اختر البروفايل وأدخل كلمة المرور للمتابعة</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-700 block mb-1">اختر البروفايل:</label>
+                    <select id="login-profile" class="w-full p-3.5 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 font-semibold focus:bg-white focus:border-indigo-500 outline-none transition">
+                        <option value="profile1">👤 البروفايل الرئيسي (الزوج)</option>
+                        <option value="profile2">🌸 بروفايل الزوجة</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-slate-700 block mb-1">كلمة المرور:</label>
+                    <input type="password" id="login-password" placeholder="أدخل كلمة المرور (الافتراضي: Aa112233)" required class="w-full p-3.5 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-300 focus:bg-white focus:border-indigo-500 outline-none transition">
+                </div>
+
+                <button type="submit" id="login-btn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-indigo-200 cursor-pointer">دخول</button>
+            </form>
+
+            <div class="text-center pt-2 border-t border-indigo-100">
+                <button type="button" onclick="openChangePasswordModal()" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer">تغيير كلمة المرور للبروفايل</button>
+            </div>
+        </div>
+    </div>
+
     <!-- الهيدر -->
-    <header class="bg-gradient-to-l from-indigo-600 to-blue-600 text-white p-5 sticky top-0 z-50 shadow-md">
+    <header class="bg-gradient-to-l from-indigo-600 to-blue-600 text-white p-5 sticky top-0 z-40 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center text-xl shadow-inner">💎</div>
                 <div>
-                    <h1 class="text-base font-extrabold tracking-wide text-white">محفظتي الذكية</h1>
-                    <p id="current-date" class="text-[10px] text-indigo-100 font-medium"></p>
+                    <h1 class="text-base font-extrabold tracking-wide text-white" id="header-title-text">محفظتي الذكية</h1>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span id="connection-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+                        <span id="connection-text" class="text-[10px] text-indigo-100 font-medium">جاري الاتصال...</span>
+                    </div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" onclick="exportData()" title="تصدير البيانات" class="text-xs bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl transition flex items-center gap-1 font-bold cursor-pointer">
                     <span>📥</span> تصدير
                 </button>
-                <div id="connection-status-box" class="flex items-center gap-1.5 text-[10px] bg-white/20 text-white border border-white/30 px-2.5 py-1.5 rounded-full font-bold">
-                    <span id="connection-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span> 
-                    <span id="connection-text">جاري الاتصال...</span>
-                </div>
+                <button type="button" onclick="logout()" title="تسجيل الخروج" class="text-xs bg-rose-500/80 hover:bg-rose-600 text-white p-2 rounded-xl transition flex items-center gap-1 font-bold cursor-pointer">
+                    <span>🚪</span> خروج
+                </button>
             </div>
         </div>
     </header>
@@ -67,14 +101,18 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 pt-2 border-t border-white/20">
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center">
                     <div>
-                        <span class="text-[11px] text-indigo-100 font-medium block">إجمالي المصروفات</span>
-                        <p id="total-expenses" class="text-base font-black tracking-tight text-rose-200 mt-0.5">0 د.ع</p>
+                        <span class="text-[10px] text-indigo-100 font-medium block">المصروفات</span>
+                        <p id="total-expenses" class="text-xs font-black tracking-tight text-rose-200 mt-0.5">0 د.ع</p>
                     </div>
                     <div>
-                        <span class="text-[11px] text-indigo-100 font-medium block">الديون (التي عليك)</span>
-                        <p id="total-debts" class="text-base font-black tracking-tight text-amber-200 mt-0.5">0 د.ع</p>
+                        <span class="text-[10px] text-indigo-100 font-medium block">الديون</span>
+                        <p id="total-debts" class="text-xs font-black tracking-tight text-amber-200 mt-0.5">0 د.ع</p>
+                    </div>
+                    <div onclick="openSavingsModal()" class="cursor-pointer group bg-white/10 hover:bg-white/20 p-1.5 rounded-2xl transition">
+                        <span class="text-[10px] text-emerald-200 font-medium block flex items-center justify-center gap-1">المدخرات <span>✏️</span></span>
+                        <p id="total-savings" class="text-xs font-black tracking-tight text-emerald-300 mt-0.5">0 د.ع</p>
                     </div>
                 </div>
             </div>
@@ -86,7 +124,7 @@
                 <span>💸</span> المصروفات
             </button>
             <button type="button" onclick="switchTab('debts')" id="tab-debts" class="flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                <span>📑</span> الديون الذتية
+                <span>📑</span> الديون والسلف
             </button>
         </div>
 
@@ -122,22 +160,41 @@
             </div>
         </div>
 
-        <!-- قائمة الديون -->
+        <!-- قائمة الديون والسلف -->
         <div id="content-debts" class="hidden space-y-4">
-            <div class="glass-card p-5 rounded-3xl shadow-sm">
-                <h2 class="text-xs font-extrabold mb-4 text-indigo-900 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> إضافة دين جديد (عليك)
-                </h2>
+            <div class="glass-card p-5 rounded-3xl shadow-sm space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-extrabold text-indigo-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> إضافة دين أو سلفة
+                    </h2>
+                    <button type="button" onclick="openSavingsModal()" class="text-[10px] bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                        <span>➕</span> إضافة / تعديل المدخرات
+                    </button>
+                </div>
                 <form id="debt-form" onsubmit="addDebt(event)" class="space-y-3.5">
                     <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة الدائنة" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
                     <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
-                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين</button>
+                    
+                    <!-- اختيار مصدر التسديد عند الإضافة -->
+                    <div class="bg-indigo-50/70 p-3 rounded-2xl border border-indigo-100 space-y-1.5">
+                        <label class="text-[11px] font-bold text-indigo-900 block">طريقة تسديد هذا الدين/السلفة:</label>
+                        <div class="flex gap-4 text-xs font-semibold">
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="payment-source" value="balance" checked class="accent-indigo-600"> من الرصيد الأساسي
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="payment-source" value="savings" class="accent-emerald-600"> من المدخرات 🏦
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين والتسديد</button>
                 </form>
             </div>
 
             <!-- سجل الديون -->
             <div class="glass-card p-5 rounded-3xl shadow-sm">
-                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل الديون (بذمتك)</h2>
+                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل الديون والسلف</h2>
                 <div id="debts-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
                     <p class="text-[11px] text-indigo-400 text-center py-6">جاري مزامنة السحابة...</p>
                 </div>
@@ -172,12 +229,92 @@
         </div>
     </div>
 
-    <!-- جافاسكريبت وربط Realtime Database الآمن -->
+    <!-- نافذة إضافة وتعديل المدخرات -->
+    <div id="savings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-emerald-100">
+            <h3 class="text-sm font-extrabold text-slate-800">🏦 إضافة وتعديل المدخرات</h3>
+            <p class="text-[11px] text-slate-500">اختر الطريقة لإضافة مبلغ جديد أو تعديل إجمالي المدخرات:</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-600 block mb-1">إضافة مبلغ جديد للمدخرات الحالية:</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="add-savings-input" placeholder="المبلغ المراد إضافته" class="w-full p-3 text-xs bg-emerald-50/50 border border-emerald-200 rounded-2xl text-slate-800 outline-none focus:border-emerald-500">
+                        <button type="button" onclick="addToSavings()" class="bg-emerald-600 text-white px-4 py-3 rounded-2xl font-bold text-xs hover:bg-emerald-700 transition cursor-pointer whitespace-nowrap">إيداع</button>
+                    </div>
+                </div>
+                <hr class="border-slate-100">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-600 block mb-1">تحديد إجمالي المدخرات مباشرة:</label>
+                    <input type="number" id="new-savings-input" placeholder="إجمالي المدخرات" class="w-full p-3 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
+                    <button type="button" onclick="saveNewSavings()" class="w-full mt-2 bg-slate-800 text-white py-2.5 rounded-2xl font-bold text-xs hover:bg-slate-900 transition cursor-pointer">تحديث الإجمالي</button>
+                </div>
+            </div>
+            <div class="pt-2">
+                <button type="button" onclick="closeSavingsModal()" class="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة اختيار طريقة تسديد دين مسجل مسبقاً -->
+    <div id="pay-debt-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-amber-100">
+            <h3 class="text-sm font-extrabold text-slate-800">💳 تسديد الدين أو السلفة</h3>
+            <p id="pay-debt-info" class="text-[11px] text-slate-500 font-semibold"></p>
+            <input type="hidden" id="pay-debt-id">
+            <input type="hidden" id="pay-debt-amount">
+            
+            <div class="bg-amber-50/70 p-3 rounded-2xl border border-amber-100 space-y-1.5">
+                <label class="text-[11px] font-bold text-slate-800 block">اختر مصدر الخصم لتسديد هذا الدين:</label>
+                <div class="flex flex-col gap-2 text-xs font-semibold pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-xl border border-slate-200">
+                        <input type="radio" name="modal-payment-source" value="balance" checked class="accent-indigo-600"> خصم من الرصيد الأساسي
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-xl border border-emerald-200">
+                        <input type="radio" name="modal-payment-source" value="savings" class="accent-emerald-600"> خصم من المدخرات 🏦
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="confirmPayDebt()" class="flex-1 bg-amber-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-amber-700 transition cursor-pointer">تأكيد التسديد</button>
+                <button type="button" onclick="closePayDebtModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تغيير كلمة المرور -->
+    <div id="change-pass-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
+            <h3 class="text-sm font-extrabold text-slate-800">🔒 تغيير كلمة المرور</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-700 block mb-1">اختر البروفايل المراد تغيير رقمه السري:</label>
+                    <select id="cp-profile" class="w-full p-3 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
+                        <option value="profile1">👤 البروفايل الرئيسي (الزوج)</option>
+                        <option value="profile2">🌸 بروفايل الزوجة</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-700 block mb-1">كلمة المرور الحالية (أو باسورد الادمن):</label>
+                    <input type="password" id="cp-old" placeholder="كلمة المرور الحالية أو Aa112233" class="w-full p-3 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-700 block mb-1">كلمة المرور الجديدة:</label>
+                    <input type="password" id="cp-new" placeholder="كلمة المرور الجديدة" class="w-full p-3 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="confirmChangePassword()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ</button>
+                <button type="button" onclick="closeChangePasswordModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- جافاسكريبت وربط Realtime Database -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, remove, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, remove, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // إعدادات قاعدة بياناتك المباشرة برابط آمن (HTTPS)
         const firebaseConfig = {
             databaseURL: "https://buddget-28216-default-rtdb.firebaseio.com"
         };
@@ -185,70 +322,164 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        let currentProfile = localStorage.getItem('smart_wallet_profile') || null;
+        const ADMIN_MASTER_PASS = "Aa112233";
+
         let expensesData = [];
         let debtsData = [];
         let baseBalance = 0;
         let monthlyBudget = 500000;
+        let totalSavings = 0;
 
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+        if (currentProfile) {
+            document.getElementById('login-screen').classList.add('hidden');
+            updateHeaderTitle();
+            initDatabaseListeners(currentProfile);
+        }
 
-        // مؤشر الاتصال الحقيقي بـ Realtime Database
-        const connectedRef = ref(db, ".info/connected");
-        onValue(connectedRef, (snap) => {
-            const dot = document.getElementById('connection-dot');
-            const text = document.getElementById('connection-text');
-            if (snap.val() === true) {
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-300 animate-pulse";
-                if(text) text.innerText = "متصل";
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            const profile = document.getElementById('login-profile').value;
+            const pass = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+            
+            btn.disabled = true;
+            btn.innerText = "جاري التحقق...";
+
+            // تم جعل كلمة المرور الافتراضية للكل هي Aa112233
+            let defaultPass = ADMIN_MASTER_PASS;
+            let savedPass = defaultPass;
+
+            try {
+                const dbRef = ref(db);
+                let snapshot = await get(child(dbRef, `passwords/${profile}`));
+                if (snapshot.exists()) {
+                    savedPass = snapshot.val();
+                }
+            } catch (err) {
+                console.warn("استخدام كلمة المرور الافتراضية لعدم توفر الاتصال الفوري بالسحابة:", err);
+            }
+
+            if (pass === savedPass || pass === ADMIN_MASTER_PASS) {
+                currentProfile = profile;
+                localStorage.setItem('smart_wallet_profile', profile);
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('login-password').value = '';
+                updateHeaderTitle();
+                initDatabaseListeners(profile);
             } else {
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
-                if(text) text.innerText = "غير متصل";
+                alert('كلمة المرور غير صحيحة!');
             }
-        });
 
-        // قراءة الرصيد الأساسي من السحابة
-        onValue(ref(db, "settings/baseBalance"), (snapshot) => {
-            if (snapshot.exists()) {
-                baseBalance = snapshot.val();
+            btn.disabled = false;
+            btn.innerText = "دخول";
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('smart_wallet_profile');
+            location.reload();
+        }
+
+        window.openChangePasswordModal = function() {
+            document.getElementById('change-pass-modal').classList.remove('hidden');
+        }
+        window.closeChangePasswordModal = function() {
+            document.getElementById('change-pass-modal').classList.add('hidden');
+        }
+
+        window.confirmChangePassword = async function() {
+            const profile = document.getElementById('cp-profile').value;
+            const oldPass = document.getElementById('cp-old').value;
+            const newPass = document.getElementById('cp-new').value;
+
+            if (!newPass) {
+                alert('يرجى إدخال كلمة المرور الجديدة');
+                return;
+            }
+
+            let defaultPass = ADMIN_MASTER_PASS;
+            let savedPass = defaultPass;
+
+            try {
+                const dbRef = ref(db);
+                let snapshot = await get(child(dbRef, `passwords/${profile}`));
+                if (snapshot.exists()) {
+                    savedPass = snapshot.val();
+                }
+            } catch (e) {}
+
+            if (oldPass === savedPass || oldPass === ADMIN_MASTER_PASS) {
+                await set(ref(db, `passwords/${profile}`), newPass);
+                alert('تم تغيير كلمة المرور بنجاح!');
+                closeChangePasswordModal();
+                document.getElementById('cp-old').value = '';
+                document.getElementById('cp-new').value = '';
             } else {
-                baseBalance = 0;
+                alert('كلمة المرور الحالية غير صحيحة!');
             }
-            renderData();
-        });
+        }
 
-        // قراءة سقف الميزانية من السحابة
-        onValue(ref(db, "settings/monthlyBudget"), (snapshot) => {
-            if (snapshot.exists()) {
-                monthlyBudget = snapshot.val();
+        function updateHeaderTitle() {
+            const titleEl = document.getElementById('header-title-text');
+            if (currentProfile === 'profile2') {
+                titleEl.innerText = 'محفظتي الذكية - بروفايل الزوجة 🌸';
             } else {
-                monthlyBudget = 500000;
+                titleEl.innerText = 'محفظتي الذكية - البروفايل الرئيسي 💎';
             }
-            renderData();
-        });
+        }
 
-        // قراءة المصروفات من السحابة
-        onValue(ref(db, "expenses"), (snapshot) => {
-            expensesData = [];
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    expensesData.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-            }
-            renderData();
-        });
+        function initDatabaseListeners(profile) {
+            const path = `users/${profile}`;
 
-        // قراءة الديون من السحابة
-        onValue(ref(db, "debts"), (snapshot) => {
-            debtsData = [];
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-            }
-            renderData();
-        });
+            const connectedRef = ref(db, ".info/connected");
+            onValue(connectedRef, (snap) => {
+                const dot = document.getElementById('connection-dot');
+                const text = document.getElementById('connection-text');
+                if (snap.val() === true) {
+                    if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-300 animate-pulse";
+                    if(text) text.innerText = "متصل حقيقي بالسحابة";
+                } else {
+                    if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
+                    if(text) text.innerText = "غير متصل";
+                }
+            });
 
-        // دالة تبديل التبويبات المتاحة عالمياً
+            onValue(ref(db, `${path}/settings/baseBalance`), (snapshot) => {
+                baseBalance = snapshot.exists() ? snapshot.val() : 0;
+                renderData();
+            });
+
+            onValue(ref(db, `${path}/settings/monthlyBudget`), (snapshot) => {
+                monthlyBudget = snapshot.exists() ? snapshot.val() : 500000;
+                renderData();
+            });
+
+            onValue(ref(db, `${path}/settings/totalSavings`), (snapshot) => {
+                totalSavings = snapshot.exists() ? snapshot.val() : 0;
+                renderData();
+            });
+
+            onValue(ref(db, `${path}/expenses`), (snapshot) => {
+                expensesData = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        expensesData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    });
+                }
+                renderData();
+            });
+
+            onValue(ref(db, `${path}/debts`), (snapshot) => {
+                debtsData = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    });
+                }
+                renderData();
+            });
+        }
+
         window.switchTab = function(tab) {
             const expContent = document.getElementById('content-expenses');
             const debtContent = document.getElementById('content-debts');
@@ -270,51 +501,56 @@
             }
         };
 
-        // النوافذ والأزرار الأخرى
         window.openEditBalanceModal = function() {
-            const input = document.getElementById('new-balance-input');
-            if(input) input.value = baseBalance;
-            const modal = document.getElementById('balance-modal');
-            if(modal) modal.classList.remove('hidden');
+            document.getElementById('new-balance-input').value = baseBalance;
+            document.getElementById('balance-modal').classList.remove('hidden');
         }
-
-        window.closeEditBalanceModal = function() {
-            const modal = document.getElementById('balance-modal');
-            if(modal) modal.classList.add('hidden');
-        }
-
+        window.closeEditBalanceModal = function() { document.getElementById('balance-modal').classList.add('hidden'); }
         window.saveNewBalance = async function() {
-            const input = document.getElementById('new-balance-input');
-            const val = parseFloat(input ? input.value : 0);
+            const val = parseFloat(document.getElementById('new-balance-input').value);
             if (!isNaN(val)) {
-                try {
-                    await set(ref(db, "settings/baseBalance"), val);
-                    closeEditBalanceModal();
-                } catch (error) { alert('خطأ أثناء الحفظ: ' + error.message); }
-            } else { alert('يرجى إدخال مبلغ صحيح'); }
+                await set(ref(db, `users/${currentProfile}/settings/baseBalance`), val);
+                closeEditBalanceModal();
+            }
         }
 
         window.openBudgetModal = function() {
-            const input = document.getElementById('new-budget-input');
-            if(input) input.value = monthlyBudget;
-            const modal = document.getElementById('budget-modal');
-            if(modal) modal.classList.remove('hidden');
+            document.getElementById('new-budget-input').value = monthlyBudget;
+            document.getElementById('budget-modal').classList.remove('hidden');
         }
-
-        window.closeBudgetModal = function() {
-            const modal = document.getElementById('budget-modal');
-            if(modal) modal.classList.add('hidden');
-        }
-
+        window.closeBudgetModal = function() { document.getElementById('budget-modal').classList.add('hidden'); }
         window.saveNewBudget = async function() {
-            const input = document.getElementById('new-budget-input');
-            const val = parseFloat(input ? input.value : 0);
+            const val = parseFloat(document.getElementById('new-budget-input').value);
             if (!isNaN(val)) {
-                try {
-                    await set(ref(db, "settings/monthlyBudget"), val);
-                    closeBudgetModal();
-                } catch (error) { alert('خطأ أثناء الحفظ: ' + error.message); }
-            } else { alert('يرجى إدخال سقف ميزانية صحيح'); }
+                await set(ref(db, `users/${currentProfile}/settings/monthlyBudget`), val);
+                closeBudgetModal();
+            }
+        }
+
+        window.openSavingsModal = function() {
+            document.getElementById('new-savings-input').value = totalSavings;
+            document.getElementById('add-savings-input').value = '';
+            document.getElementById('savings-modal').classList.remove('hidden');
+        }
+        window.closeSavingsModal = function() { document.getElementById('savings-modal').classList.add('hidden'); }
+
+        window.addToSavings = async function() {
+            const addVal = parseFloat(document.getElementById('add-savings-input').value);
+            if (!isNaN(addVal) && addVal > 0) {
+                const updatedSavings = totalSavings + addVal;
+                await set(ref(db, `users/${currentProfile}/settings/totalSavings`), updatedSavings);
+                closeSavingsModal();
+            } else {
+                alert('يرجى إدخال مبلغ صحيح للإيداع');
+            }
+        }
+
+        window.saveNewSavings = async function() {
+            const val = parseFloat(document.getElementById('new-savings-input').value);
+            if (!isNaN(val)) {
+                await set(ref(db, `users/${currentProfile}/settings/totalSavings`), val);
+                closeSavingsModal();
+            }
         }
 
         window.addExpense = async function(e) {
@@ -322,7 +558,7 @@
             const btn = document.getElementById('exp-btn');
             btn.disabled = true; btn.innerText = 'جاري الحفظ...';
             try {
-                await push(ref(db, "expenses"), {
+                await push(ref(db, `users/${currentProfile}/expenses`), {
                     title: document.getElementById('exp-title').value,
                     amount: parseFloat(document.getElementById('exp-amount').value),
                     category: document.getElementById('exp-category').value,
@@ -336,27 +572,77 @@
         window.addDebt = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('debt-btn');
+            const amount = parseFloat(document.getElementById('debt-amount').value);
+            const source = document.querySelector('input[name="payment-source"]:checked').value;
+
+            if (source === 'savings' && amount > totalSavings) {
+                alert('عذراً، مبلغ المدخرات الحالي غير كافٍ لتسديد هذا الدين!');
+                return;
+            }
+
             btn.disabled = true; btn.innerText = 'جاري الحفظ...';
             try {
-                await push(ref(db, "debts"), {
+                await push(ref(db, `users/${currentProfile}/debts`), {
                     name: document.getElementById('debt-name').value,
-                    amount: parseFloat(document.getElementById('debt-amount').value),
+                    amount: amount,
+                    source: source,
                     createdAt: Date.now()
                 });
+
+                if (source === 'savings') {
+                    await set(ref(db, `users/${currentProfile}/settings/totalSavings`), totalSavings - amount);
+                }
+
                 document.getElementById('debt-form').reset();
             } catch (error) { alert('خطأ: ' + error.message); }
-            finally { btn.disabled = false; btn.innerText = 'حفظ الدين'; }
+            finally { btn.disabled = false; btn.innerText = 'حفظ الدين والتسديد'; }
+        }
+
+        window.openPayDebtModal = function(id, name, amount) {
+            document.getElementById('pay-debt-id').value = id;
+            document.getElementById('pay-debt-amount').value = amount;
+            document.getElementById('pay-debt-info').innerText = `دين لصالح: ${name} بمبلغ ${amount.toLocaleString()} د.ع`;
+            document.getElementById('pay-debt-modal').classList.remove('hidden');
+        }
+        window.closePayDebtModal = function() {
+            document.getElementById('pay-debt-modal').classList.add('hidden');
+        }
+
+        window.confirmPayDebt = async function() {
+            const id = document.getElementById('pay-debt-id').value;
+            const amount = parseFloat(document.getElementById('pay-debt-amount').value);
+            const source = document.querySelector('input[name="modal-payment-source"]:checked').value;
+
+            if (source === 'savings' && amount > totalSavings) {
+                alert('عذراً، مبلغ المدخرات الحالي غير كافٍ لتسديد هذا الدين!');
+                return;
+            }
+
+            try {
+                await update(ref(db, `users/${currentProfile}/debts/${id}`), { source: source });
+
+                if (source === 'savings') {
+                    await set(ref(db, `users/${currentProfile}/settings/totalSavings`), totalSavings - amount);
+                }
+
+                closePayDebtModal();
+            } catch (error) {
+                alert('خطأ أثناء التسديد: ' + error.message);
+            }
         }
 
         window.deleteExpense = async function(id) {
             if(confirm('هل تريد حذف هذا المصروف؟')) {
-                await remove(ref(db, `expenses/${id}`));
+                await remove(ref(db, `users/${currentProfile}/expenses/${id}`));
             }
         }
 
-        window.deleteDebt = async function(id) {
+        window.deleteDebt = async function(id, amount, source) {
             if(confirm('هل تريد حذف هذا الدين؟')) {
-                await remove(ref(db, `debts/${id}`));
+                await remove(ref(db, `users/${currentProfile}/debts/${id}`));
+                if (source === 'savings') {
+                    await set(ref(db, `users/${currentProfile}/settings/totalSavings`), totalSavings + amount);
+                }
             }
         }
 
@@ -368,14 +654,14 @@
             });
             debtsData.forEach(item => {
                 const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                csvContent += `دين: ${item.name},${item.amount},بذمته,${dateStr}\n`;
+                csvContent += `دين (من ${item.source === 'savings' ? 'المدخرات' : 'الرصيد'}): ${item.name},${item.amount},دين,${dateStr}\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'smart_wallet_report.csv';
+            a.download = `smart_wallet_${currentProfile}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -388,7 +674,7 @@
 
             expList.innerHTML = ''; debtList.innerHTML = '';
 
-            let totalExp = 0, totalDebt = 0;
+            let totalExp = 0, totalDebtFromBalance = 0;
 
             if (expensesData.length === 0) {
                 expList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة</p>';
@@ -410,32 +696,41 @@
                 });
             }
 
+            let totalDebtsSum = 0;
             if (debtsData.length === 0) {
                 debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون مسجلة</p>';
             } else {
                 debtsData.forEach(item => {
-                    totalDebt += item.amount;
+                    totalDebtsSum += item.amount;
+                    if (!item.source || item.source === 'balance') {
+                        totalDebtFromBalance += item.amount;
+                    }
+                    const sourceText = item.source === 'savings' ? 'مسدد من المدخرات 🏦' : 'مسدد من الرصيد';
+                    const badgeColor = item.source === 'savings' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+
                     debtList.innerHTML += `
                         <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
                             <div class="space-y-1">
                                 <p class="font-bold text-slate-800">${item.name}</p>
-                                <span class="inline-block text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-semibold">دين بذمتك</span>
+                                <span class="inline-block text-[9px] ${badgeColor} px-2 py-0.5 rounded-md font-semibold">${sourceText}</span>
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
                                 <span class="font-black text-amber-600">${item.amount.toLocaleString()} د.ع</span>
-                                <button type="button" onclick="deleteDebt('${item.id}')" class="w-7 h-7 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition cursor-pointer">✕</button>
+                                <button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" title="تسديد الدين" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl font-bold transition cursor-pointer">تسديد</button>
+                                <button type="button" onclick="deleteDebt('${item.id}', ${item.amount}, '${item.source || 'balance'}')" title="حذف" class="w-7 h-7 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition cursor-pointer">✕</button>
                             </div>
                         </div>
                     `;
                 });
             }
 
-            let netBalance = baseBalance - totalExp - totalDebt;
+            let netBalance = baseBalance - totalExp - totalDebtFromBalance;
 
             document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
             document.getElementById('net-balance').innerText = netBalance.toLocaleString() + ' د.ع';
             document.getElementById('total-expenses').innerText = totalExp.toLocaleString() + ' د.ع';
-            document.getElementById('total-debts').innerText = totalDebt.toLocaleString() + ' د.ع';
+            document.getElementById('total-debts').innerText = totalDebtsSum.toLocaleString() + ' د.ع';
+            document.getElementById('total-savings').innerText = totalSavings.toLocaleString() + ' د.ع';
 
             document.getElementById('budget-limit-text').innerText = monthlyBudget.toLocaleString();
             let progressPercent = monthlyBudget > 0 ? Math.min((totalExp / monthlyBudget) * 100, 100) : 0;
