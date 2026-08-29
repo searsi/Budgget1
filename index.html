@@ -16,58 +16,40 @@
 </head>
 <body class="text-slate-800 pb-28">
 
-    <!-- واجهة تسجيل الدخول (تظهر افتراضياً) -->
-    <div id="login-screen" class="fixed inset-0 bg-indigo-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="glass-card rounded-3xl p-7 max-w-sm w-full shadow-2xl space-y-6 border border-indigo-200">
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-blue-600 text-white rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-lg">💎</div>
-                <h2 class="text-lg font-black text-indigo-950">تسجيل الدخول إلى المحفظة</h2>
-                <p class="text-[11px] text-slate-500">اختر البروفايل وأدخل كلمة المرور للمتابعة</p>
+    <!-- نافذة تسجيل الدخول (حماية المحفظة) -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl space-y-5 border border-indigo-100 text-center">
+            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-inner">🔒</div>
+            <div class="space-y-1">
+                <h2 class="text-base font-extrabold text-slate-800">تسجيل الدخول إلى محفظتي</h2>
+                <p class="text-[11px] text-slate-500">يرجى إدخال كلمة المرور للمتابعة</p>
             </div>
-
             <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="text-[11px] font-bold text-slate-700 block mb-1">اختر البروفايل:</label>
-                    <select id="login-profile" class="w-full p-3.5 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 font-semibold focus:bg-white focus:border-indigo-500 outline-none transition">
-                        <option value="profile1">👤 البروفايل الرئيسي (الزوج)</option>
-                        <option value="profile2">🌸 بروفايل الزوجة</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-[11px] font-bold text-slate-700 block mb-1">كلمة المرور:</label>
-                    <input type="password" id="login-password" placeholder="أدخل كلمة المرور (الافتراضي: Aa112233)" required class="w-full p-3.5 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-300 focus:bg-white focus:border-indigo-500 outline-none transition">
-                </div>
-
-                <button type="submit" id="login-btn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-indigo-200 cursor-pointer">دخول</button>
+                <input type="password" id="auth-password" placeholder="كلمة المرور" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-center tracking-widest font-bold">
+                <p id="auth-error" class="text-[11px] text-rose-500 font-bold hidden">كلمة المرور غير صحيحة!</p>
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-indigo-200 cursor-pointer">دخول</button>
             </form>
-
-            <div class="text-center pt-2 border-t border-indigo-100">
-                <button type="button" onclick="openChangePasswordModal()" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer">تغيير كلمة المرور للبروفايل</button>
-            </div>
         </div>
     </div>
 
     <!-- الهيدر -->
-    <header class="bg-gradient-to-l from-indigo-600 to-blue-600 text-white p-5 sticky top-0 z-40 shadow-md">
+    <header class="bg-gradient-to-l from-indigo-600 to-blue-600 text-white p-5 sticky top-0 z-50 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center text-xl shadow-inner">💎</div>
                 <div>
-                    <h1 class="text-base font-extrabold tracking-wide text-white" id="header-title-text">محفظتي الذكية</h1>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <span id="connection-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
-                        <span id="connection-text" class="text-[10px] text-indigo-100 font-medium">جاري الاتصال...</span>
-                    </div>
+                    <h1 class="text-base font-extrabold tracking-wide text-white">محفظتي الذكية</h1>
+                    <p id="current-date" class="text-[10px] text-indigo-100 font-medium"></p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" onclick="exportData()" title="تصدير البيانات" class="text-xs bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl transition flex items-center gap-1 font-bold cursor-pointer">
                     <span>📥</span> تصدير
                 </button>
-                <button type="button" onclick="logout()" title="تسجيل الخروج" class="text-xs bg-rose-500/80 hover:bg-rose-600 text-white p-2 rounded-xl transition flex items-center gap-1 font-bold cursor-pointer">
-                    <span>🚪</span> خروج
-                </button>
+                <div id="connection-status-box" class="flex items-center gap-1.5 text-[10px] bg-white/20 text-white border border-white/30 px-2.5 py-1.5 rounded-full font-bold">
+                    <span id="connection-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span> 
+                    <span id="connection-text">جاري الاتصال...</span>
+                </div>
             </div>
         </div>
     </header>
@@ -282,38 +264,28 @@
         </div>
     </div>
 
-    <!-- نافذة تغيير كلمة المرور -->
-    <div id="change-pass-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
-            <h3 class="text-sm font-extrabold text-slate-800">🔒 تغيير كلمة المرور</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-700 block mb-1">اختر البروفايل المراد تغيير رقمه السري:</label>
-                    <select id="cp-profile" class="w-full p-3 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
-                        <option value="profile1">👤 البروفايل الرئيسي (الزوج)</option>
-                        <option value="profile2">🌸 بروفايل الزوجة</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-700 block mb-1">كلمة المرور الحالية (أو باسورد الادمن):</label>
-                    <input type="password" id="cp-old" placeholder="كلمة المرور الحالية أو Aa112233" class="w-full p-3 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-700 block mb-1">كلمة المرور الجديدة:</label>
-                    <input type="password" id="cp-new" placeholder="كلمة المرور الجديدة" class="w-full p-3 text-xs bg-indigo-50/70 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
-                </div>
-            </div>
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="confirmChangePassword()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ</button>
-                <button type="button" onclick="closeChangePasswordModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
     <!-- جافاسكريبت وربط Realtime Database -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, remove, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, remove, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // التحقق من حالة الجلسة عند التحميل
+        if (sessionStorage.getItem("isLoggedIn") === "true") {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const pass = document.getElementById('auth-password').value;
+            const errorText = document.getElementById('auth-error');
+            if (pass === "Aa112233") {
+                sessionStorage.setItem("isLoggedIn", "true");
+                document.getElementById('auth-modal').classList.add('hidden');
+            } else {
+                errorText.classList.remove('hidden');
+                document.getElementById('auth-password').value = '';
+            }
+        }
 
         const firebaseConfig = {
             databaseURL: "https://buddget-28216-default-rtdb.firebaseio.com"
@@ -322,163 +294,61 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let currentProfile = localStorage.getItem('smart_wallet_profile') || null;
-        const ADMIN_MASTER_PASS = "Aa112233";
-
         let expensesData = [];
         let debtsData = [];
         let baseBalance = 0;
         let monthlyBudget = 500000;
         let totalSavings = 0;
 
-        if (currentProfile) {
-            document.getElementById('login-screen').classList.add('hidden');
-            updateHeaderTitle();
-            initDatabaseListeners(currentProfile);
-        }
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
 
-        window.handleLogin = async function(e) {
-            e.preventDefault();
-            const profile = document.getElementById('login-profile').value;
-            const pass = document.getElementById('login-password').value;
-            const btn = document.getElementById('login-btn');
-            
-            btn.disabled = true;
-            btn.innerText = "جاري التحقق...";
-
-            // تم جعل كلمة المرور الافتراضية للكل هي Aa112233
-            let defaultPass = ADMIN_MASTER_PASS;
-            let savedPass = defaultPass;
-
-            try {
-                const dbRef = ref(db);
-                let snapshot = await get(child(dbRef, `passwords/${profile}`));
-                if (snapshot.exists()) {
-                    savedPass = snapshot.val();
-                }
-            } catch (err) {
-                console.warn("استخدام كلمة المرور الافتراضية لعدم توفر الاتصال الفوري بالسحابة:", err);
-            }
-
-            if (pass === savedPass || pass === ADMIN_MASTER_PASS) {
-                currentProfile = profile;
-                localStorage.setItem('smart_wallet_profile', profile);
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('login-password').value = '';
-                updateHeaderTitle();
-                initDatabaseListeners(profile);
+        const connectedRef = ref(db, ".info/connected");
+        onValue(connectedRef, (snap) => {
+            const dot = document.getElementById('connection-dot');
+            const text = document.getElementById('connection-text');
+            if (snap.val() === true) {
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-300 animate-pulse";
+                if(text) text.innerText = "متصل";
             } else {
-                alert('كلمة المرور غير صحيحة!');
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
+                if(text) text.innerText = "غير متصل";
             }
+        });
 
-            btn.disabled = false;
-            btn.innerText = "دخول";
-        }
+        onValue(ref(db, "settings/baseBalance"), (snapshot) => {
+            baseBalance = snapshot.exists() ? snapshot.val() : 0;
+            renderData();
+        });
 
-        window.logout = function() {
-            localStorage.removeItem('smart_wallet_profile');
-            location.reload();
-        }
+        onValue(ref(db, "settings/monthlyBudget"), (snapshot) => {
+            monthlyBudget = snapshot.exists() ? snapshot.val() : 500000;
+            renderData();
+        });
 
-        window.openChangePasswordModal = function() {
-            document.getElementById('change-pass-modal').classList.remove('hidden');
-        }
-        window.closeChangePasswordModal = function() {
-            document.getElementById('change-pass-modal').classList.add('hidden');
-        }
+        onValue(ref(db, "settings/totalSavings"), (snapshot) => {
+            totalSavings = snapshot.exists() ? snapshot.val() : 0;
+            renderData();
+        });
 
-        window.confirmChangePassword = async function() {
-            const profile = document.getElementById('cp-profile').value;
-            const oldPass = document.getElementById('cp-old').value;
-            const newPass = document.getElementById('cp-new').value;
-
-            if (!newPass) {
-                alert('يرجى إدخال كلمة المرور الجديدة');
-                return;
+        onValue(ref(db, "expenses"), (snapshot) => {
+            expensesData = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    expensesData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
             }
+            renderData();
+        });
 
-            let defaultPass = ADMIN_MASTER_PASS;
-            let savedPass = defaultPass;
-
-            try {
-                const dbRef = ref(db);
-                let snapshot = await get(child(dbRef, `passwords/${profile}`));
-                if (snapshot.exists()) {
-                    savedPass = snapshot.val();
-                }
-            } catch (e) {}
-
-            if (oldPass === savedPass || oldPass === ADMIN_MASTER_PASS) {
-                await set(ref(db, `passwords/${profile}`), newPass);
-                alert('تم تغيير كلمة المرور بنجاح!');
-                closeChangePasswordModal();
-                document.getElementById('cp-old').value = '';
-                document.getElementById('cp-new').value = '';
-            } else {
-                alert('كلمة المرور الحالية غير صحيحة!');
+        onValue(ref(db, "debts"), (snapshot) => {
+            debtsData = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
             }
-        }
-
-        function updateHeaderTitle() {
-            const titleEl = document.getElementById('header-title-text');
-            if (currentProfile === 'profile2') {
-                titleEl.innerText = 'محفظتي الذكية - بروفايل الزوجة 🌸';
-            } else {
-                titleEl.innerText = 'محفظتي الذكية - البروفايل الرئيسي 💎';
-            }
-        }
-
-        function initDatabaseListeners(profile) {
-            const path = `users/${profile}`;
-
-            const connectedRef = ref(db, ".info/connected");
-            onValue(connectedRef, (snap) => {
-                const dot = document.getElementById('connection-dot');
-                const text = document.getElementById('connection-text');
-                if (snap.val() === true) {
-                    if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-300 animate-pulse";
-                    if(text) text.innerText = "متصل حقيقي بالسحابة";
-                } else {
-                    if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
-                    if(text) text.innerText = "غير متصل";
-                }
-            });
-
-            onValue(ref(db, `${path}/settings/baseBalance`), (snapshot) => {
-                baseBalance = snapshot.exists() ? snapshot.val() : 0;
-                renderData();
-            });
-
-            onValue(ref(db, `${path}/settings/monthlyBudget`), (snapshot) => {
-                monthlyBudget = snapshot.exists() ? snapshot.val() : 500000;
-                renderData();
-            });
-
-            onValue(ref(db, `${path}/settings/totalSavings`), (snapshot) => {
-                totalSavings = snapshot.exists() ? snapshot.val() : 0;
-                renderData();
-            });
-
-            onValue(ref(db, `${path}/expenses`), (snapshot) => {
-                expensesData = [];
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        expensesData.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                    });
-                }
-                renderData();
-            });
-
-            onValue(ref(db, `${path}/debts`), (snapshot) => {
-                debtsData = [];
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                    });
-                }
-                renderData();
-            });
-        }
+            renderData();
+        });
 
         window.switchTab = function(tab) {
             const expContent = document.getElementById('content-expenses');
@@ -509,7 +379,7 @@
         window.saveNewBalance = async function() {
             const val = parseFloat(document.getElementById('new-balance-input').value);
             if (!isNaN(val)) {
-                await set(ref(db, `users/${currentProfile}/settings/baseBalance`), val);
+                await set(ref(db, "settings/baseBalance"), val);
                 closeEditBalanceModal();
             }
         }
@@ -522,7 +392,7 @@
         window.saveNewBudget = async function() {
             const val = parseFloat(document.getElementById('new-budget-input').value);
             if (!isNaN(val)) {
-                await set(ref(db, `users/${currentProfile}/settings/monthlyBudget`), val);
+                await set(ref(db, "settings/monthlyBudget"), val);
                 closeBudgetModal();
             }
         }
@@ -538,7 +408,7 @@
             const addVal = parseFloat(document.getElementById('add-savings-input').value);
             if (!isNaN(addVal) && addVal > 0) {
                 const updatedSavings = totalSavings + addVal;
-                await set(ref(db, `users/${currentProfile}/settings/totalSavings`), updatedSavings);
+                await set(ref(db, "settings/totalSavings"), updatedSavings);
                 closeSavingsModal();
             } else {
                 alert('يرجى إدخال مبلغ صحيح للإيداع');
@@ -548,7 +418,7 @@
         window.saveNewSavings = async function() {
             const val = parseFloat(document.getElementById('new-savings-input').value);
             if (!isNaN(val)) {
-                await set(ref(db, `users/${currentProfile}/settings/totalSavings`), val);
+                await set(ref(db, "settings/totalSavings"), val);
                 closeSavingsModal();
             }
         }
@@ -558,7 +428,7 @@
             const btn = document.getElementById('exp-btn');
             btn.disabled = true; btn.innerText = 'جاري الحفظ...';
             try {
-                await push(ref(db, `users/${currentProfile}/expenses`), {
+                await push(ref(db, "expenses"), {
                     title: document.getElementById('exp-title').value,
                     amount: parseFloat(document.getElementById('exp-amount').value),
                     category: document.getElementById('exp-category').value,
@@ -582,7 +452,7 @@
 
             btn.disabled = true; btn.innerText = 'جاري الحفظ...';
             try {
-                await push(ref(db, `users/${currentProfile}/debts`), {
+                await push(ref(db, "debts"), {
                     name: document.getElementById('debt-name').value,
                     amount: amount,
                     source: source,
@@ -590,7 +460,7 @@
                 });
 
                 if (source === 'savings') {
-                    await set(ref(db, `users/${currentProfile}/settings/totalSavings`), totalSavings - amount);
+                    await set(ref(db, "settings/totalSavings"), totalSavings - amount);
                 }
 
                 document.getElementById('debt-form').reset();
@@ -598,6 +468,7 @@
             finally { btn.disabled = false; btn.innerText = 'حفظ الدين والتسديد'; }
         }
 
+        // نافذة اختيار التسديد للدين الموجود
         window.openPayDebtModal = function(id, name, amount) {
             document.getElementById('pay-debt-id').value = id;
             document.getElementById('pay-debt-amount').value = amount;
@@ -619,10 +490,12 @@
             }
 
             try {
-                await update(ref(db, `users/${currentProfile}/debts/${id}`), { source: source });
+                // تحديث مصدر التسديد لهذا الدين في قاعدة البيانات
+                await update(ref(db, `debts/${id}`), { source: source });
 
+                // إذا كان الخصم من المدخرات، ننقصها
                 if (source === 'savings') {
-                    await set(ref(db, `users/${currentProfile}/settings/totalSavings`), totalSavings - amount);
+                    await set(ref(db, "settings/totalSavings"), totalSavings - amount);
                 }
 
                 closePayDebtModal();
@@ -633,15 +506,15 @@
 
         window.deleteExpense = async function(id) {
             if(confirm('هل تريد حذف هذا المصروف؟')) {
-                await remove(ref(db, `users/${currentProfile}/expenses/${id}`));
+                await remove(ref(db, `expenses/${id}`));
             }
         }
 
         window.deleteDebt = async function(id, amount, source) {
             if(confirm('هل تريد حذف هذا الدين؟')) {
-                await remove(ref(db, `users/${currentProfile}/debts/${id}`));
+                await remove(ref(db, `debts/${id}`));
                 if (source === 'savings') {
-                    await set(ref(db, `users/${currentProfile}/settings/totalSavings`), totalSavings + amount);
+                    await set(ref(db, "settings/totalSavings"), totalSavings + amount);
                 }
             }
         }
@@ -661,7 +534,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `smart_wallet_${currentProfile}.csv`;
+            a.download = 'smart_wallet_report.csv';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -681,65 +554,71 @@
             } else {
                 expensesData.forEach(item => {
                     totalExp += item.amount;
+                    const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
                     expList.innerHTML += `
                         <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
                             <div class="space-y-1">
                                 <p class="font-bold text-slate-800">${item.title}</p>
-                                <span class="inline-block text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md font-semibold">${item.category}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md font-semibold">${item.category}</span>
+                                    <span class="text-[9px] text-slate-400">${dateStr}</span>
+                                </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="font-black text-rose-600">${item.amount.toLocaleString()} د.ع</span>
-                                <button type="button" onclick="deleteExpense('${item.id}')" class="w-7 h-7 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition cursor-pointer">✕</button>
+                                <span class="font-black text-rose-600">-${item.amount.toLocaleString()} د.ع</span>
+                                <button type="button" onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer">🗑️</button>
                             </div>
                         </div>
                     `;
                 });
             }
 
-            let totalDebtsSum = 0;
             if (debtsData.length === 0) {
                 debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون مسجلة</p>';
             } else {
                 debtsData.forEach(item => {
-                    totalDebtsSum += item.amount;
-                    if (!item.source || item.source === 'balance') {
+                    if (item.source !== 'savings') {
                         totalDebtFromBalance += item.amount;
                     }
-                    const sourceText = item.source === 'savings' ? 'مسدد من المدخرات 🏦' : 'مسدد من الرصيد';
-                    const badgeColor = item.source === 'savings' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                    const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
+                    const sourceText = item.source === 'savings' ? 'من المدخرات 🏦' : 'من الرصيد الأساسي';
+                    const sourceBadgeColor = item.source === 'savings' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
 
                     debtList.innerHTML += `
                         <div class="flex justify-between items-center p-3.5 bg-indigo-50/50 hover:bg-indigo-50 rounded-2xl border border-indigo-100 transition text-xs">
                             <div class="space-y-1">
                                 <p class="font-bold text-slate-800">${item.name}</p>
-                                <span class="inline-block text-[9px] ${badgeColor} px-2 py-0.5 rounded-md font-semibold">${sourceText}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block text-[9px] ${sourceBadgeColor} px-2 py-0.5 rounded-md font-semibold">${sourceText}</span>
+                                    <span class="text-[9px] text-slate-400">${dateStr}</span>
+                                </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="font-black text-amber-600">${item.amount.toLocaleString()} د.ع</span>
-                                <button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" title="تسديد الدين" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl font-bold transition cursor-pointer">تسديد</button>
-                                <button type="button" onclick="deleteDebt('${item.id}', ${item.amount}, '${item.source || 'balance'}')" title="حذف" class="w-7 h-7 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-xl flex items-center justify-center transition cursor-pointer">✕</button>
+                                <button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" title="تغيير طريقة التسديد" class="text-slate-400 hover:text-indigo-600 transition p-1 cursor-pointer">💳</button>
+                                <button type="button" onclick="deleteDebt('${item.id}', ${item.amount}, '${item.source}')" class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer">🗑️</button>
                             </div>
                         </div>
                     `;
                 });
             }
 
-            let netBalance = baseBalance - totalExp - totalDebtFromBalance;
+            const netBalance = baseBalance - totalExp - totalDebtFromBalance;
 
-            document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
             document.getElementById('net-balance').innerText = netBalance.toLocaleString() + ' د.ع';
+            document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
             document.getElementById('total-expenses').innerText = totalExp.toLocaleString() + ' د.ع';
-            document.getElementById('total-debts').innerText = totalDebtsSum.toLocaleString() + ' د.ع';
+            document.getElementById('total-debts').innerText = totalDebtFromBalance.toLocaleString() + ' د.ع';
             document.getElementById('total-savings').innerText = totalSavings.toLocaleString() + ' د.ع';
 
             document.getElementById('budget-limit-text').innerText = monthlyBudget.toLocaleString();
-            let progressPercent = monthlyBudget > 0 ? Math.min((totalExp / monthlyBudget) * 100, 100) : 0;
+            const progressPercent = monthlyBudget > 0 ? Math.min(Math.round((totalExp / monthlyBudget) * 100), 100) : 0;
             const progressBar = document.getElementById('budget-progress-bar');
-            if(progressBar) {
+            if (progressBar) {
                 progressBar.style.width = progressPercent + '%';
-                if (progressPercent > 85) {
-                    progressBar.className = 'bg-rose-400 h-full transition-all duration-500';
-                } else if (progressPercent > 50) {
+                if (progressPercent >= 90) {
+                    progressBar.className = 'bg-rose-500 h-full transition-all duration-500';
+                } else if (progressPercent >= 75) {
                     progressBar.className = 'bg-amber-400 h-full transition-all duration-500';
                 } else {
                     progressBar.className = 'bg-emerald-400 h-full transition-all duration-500';
