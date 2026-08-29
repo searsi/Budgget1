@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محفظتي الذكية - Realtime Database</title>
+    <title>محفظتي الذكية - الترحيل والأرشفة الشهرية</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Cairo Font -->
@@ -16,7 +16,7 @@
 </head>
 <body class="text-slate-800 pb-28">
 
-    <!-- نافذة تسجيل الدخول (حماية المحفظة) -->
+    <!-- نافذة تسجيل الدخول -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl space-y-5 border border-indigo-100 text-center">
             <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-inner">🔒</div>
@@ -43,12 +43,12 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="exportData()" title="تصدير البيانات" class="text-xs bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl transition flex items-center gap-1 font-bold cursor-pointer">
-                    <span>📥</span> تصدير
+                <button type="button" onclick="openRolloverModal()" title="إغلاق الشهر وترحيله" class="text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl transition flex items-center gap-1 font-extrabold shadow-sm cursor-pointer">
+                    <span>🔄</span> ترحيل الشهر
                 </button>
                 <div id="connection-status-box" class="flex items-center gap-1.5 text-[10px] bg-white/20 text-white border border-white/30 px-2.5 py-1.5 rounded-full font-bold">
                     <span id="connection-dot" class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span> 
-                    <span id="connection-text">جاري الاتصال...</span>
+                    <span id="connection-text">متصل</span>
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-medium text-indigo-100 tracking-wider">الرصيد الصافي (المتبقي حقيقةً)</span>
                     <button type="button" onclick="openEditBalanceModal()" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-xl backdrop-blur-md font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
-                        <span>✏️</span> تعديل الرصيد الأساسي
+                        <span>✏️</span> تعديل الرصيد
                     </button>
                 </div>
                 <div>
@@ -75,7 +75,7 @@
                 <!-- شريط تقدم الميزانية -->
                 <div class="space-y-1.5 pt-2 border-t border-white/20">
                     <div class="flex justify-between text-[11px]">
-                        <span class="text-indigo-100 font-medium">ميزانية الشهر المحددة: <span id="budget-limit-text" class="font-bold">0</span> د.ع</span>
+                        <span class="text-indigo-100 font-medium">ميزانية الشهر: <span id="budget-limit-text" class="font-bold">0</span> د.ع</span>
                         <button type="button" onclick="openBudgetModal()" class="text-indigo-200 hover:text-white underline text-[10px] cursor-pointer">تعديل السقف</button>
                     </div>
                     <div class="w-full bg-indigo-950/40 rounded-full h-2 overflow-hidden">
@@ -104,7 +104,7 @@
             </div>
         </section>
 
-        <!-- التبويبات الحديثة -->
+        <!-- التبويبات -->
         <div class="bg-indigo-100/80 p-1.5 rounded-2xl flex gap-1 shadow-inner border border-indigo-200/60">
             <button type="button" onclick="switchTab('expenses')" id="tab-expenses" class="flex-1 py-3 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
                 <span>💸</span> المصروفات
@@ -113,7 +113,7 @@
                 <span>📌</span> الالتزامات
             </button>
             <button type="button" onclick="switchTab('debts')" id="tab-debts" class="flex-1 py-3 text-xs font-bold rounded-xl text-slate-600 hover:text-indigo-600 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer">
-                <span>📑</span> الديون
+                <span>📑</span> الديون والأرشيف
             </button>
         </div>
 
@@ -125,10 +125,10 @@
                 </h2>
                 <form id="expense-form" onsubmit="addExpense(event)" class="space-y-3.5">
                     <div>
-                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                        <input type="text" id="exp-title" placeholder="عنوان المصروف (مثلاً: تسوق)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 outline-none transition">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="exp-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition">
+                        <input type="number" id="exp-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-indigo-500 outline-none transition">
                         <select id="exp-category" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-700 focus:bg-white focus:border-indigo-500 outline-none transition">
                             <option value="طعام">طعام ومشروبات</option>
                             <option value="نقل">نقل ومواصلات</option>
@@ -142,14 +142,14 @@
 
             <!-- سجل المصروفات -->
             <div class="glass-card p-5 rounded-3xl shadow-sm">
-                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل المصروفات</h2>
+                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 سجل مصروفات الشهر الحالي</h2>
                 <div id="expenses-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                    <p class="text-[11px] text-indigo-400 text-center py-6">جاري مزامنة السحابة...</p>
+                    <p class="text-[11px] text-indigo-400 text-center py-6">جاري المزامنة...</p>
                 </div>
             </div>
         </div>
 
-        <!-- قائمة الالتزامات (الجديدة) -->
+        <!-- قائمة الالتزامات -->
         <div id="content-obligations" class="hidden space-y-4">
             <div class="glass-card p-5 rounded-3xl shadow-sm">
                 <h2 class="text-xs font-extrabold mb-4 text-sky-900 flex items-center gap-2">
@@ -157,10 +157,10 @@
                 </h2>
                 <form id="obligation-form" onsubmit="addObligation(event)" class="space-y-3.5">
                     <div>
-                        <input type="text" id="ob-title" placeholder="اسم الالتزام (مثلاً: اشتراك نت، خط باص، ماء، كهرباء)" required class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-800 placeholder-sky-400 focus:bg-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none transition">
+                        <input type="text" id="ob-title" placeholder="اسم الالتزام (نت، خط باص، ماء، كهرباء)" required class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-800 placeholder-sky-400 focus:bg-white focus:border-sky-500 outline-none transition">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="ob-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-800 placeholder-sky-400 focus:bg-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none transition">
+                        <input type="number" id="ob-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-800 placeholder-sky-400 focus:bg-white focus:border-sky-500 outline-none transition">
                         <select id="ob-category" class="w-full p-3.5 text-xs bg-sky-50/50 border border-sky-200 rounded-2xl text-slate-700 focus:bg-white focus:border-sky-500 outline-none transition">
                             <option value="نت واشتراكات">نت واشتراكات</option>
                             <option value="نقل وباص">نقل وباص</option>
@@ -176,45 +176,115 @@
             <div class="glass-card p-5 rounded-3xl shadow-sm">
                 <h2 class="text-xs font-extrabold mb-3.5 text-sky-900">📋 قائمة الالتزامات الشهرية</h2>
                 <div id="obligations-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                    <p class="text-[11px] text-sky-400 text-center py-6">جاري مزامنة السحابة...</p>
+                    <p class="text-[11px] text-sky-400 text-center py-6">جاري المزامنة...</p>
                 </div>
             </div>
         </div>
 
-        <!-- قائمة الديون والسلف -->
+        <!-- قائمة الديون والأرشيف -->
         <div id="content-debts" class="hidden space-y-4">
             <div class="glass-card p-5 rounded-3xl shadow-sm space-y-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xs font-extrabold text-indigo-900 flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> تسجيل دين أو سلفة جديدة
+                        <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-black">+</span> تسجيل دين جديد
                     </h2>
-                    <button type="button" onclick="openSavingsModal()" class="text-[10px] bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
-                        <span>➕</span> المدخرات
-                    </button>
                 </div>
                 <form id="debt-form" onsubmit="addDebt(event)" class="space-y-3.5">
-                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة (مثلاً: تسديد شهر 9)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
-                    <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition">
-                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين (بدون قيود)</button>
+                    <input type="text" id="debt-name" placeholder="اسم الشخص أو الجهة" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 outline-none transition">
+                    <input type="number" id="debt-amount" placeholder="المبلغ (د.ع)" required class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 placeholder-indigo-400 focus:bg-white focus:border-amber-500 outline-none transition">
+                    <button type="submit" id="debt-btn" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-2xl font-extrabold text-xs hover:opacity-95 active:scale-95 transition shadow-lg shadow-amber-200 cursor-pointer">حفظ الدين</button>
                 </form>
             </div>
 
             <!-- سجل الديون -->
             <div class="glass-card p-5 rounded-3xl shadow-sm">
-                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 أرشيف الديون والسلف المسجلة</h2>
-                <div id="debts-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                    <p class="text-[11px] text-indigo-400 text-center py-6">جاري مزامنة السحابة...</p>
+                <h2 class="text-xs font-extrabold mb-3.5 text-indigo-900">📋 أرشيف الديون الحالية</h2>
+                <div id="debts-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                    <p class="text-[11px] text-indigo-400 text-center py-4">لا توجد ديون</p>
+                </div>
+            </div>
+
+            <!-- أرشيف الأشهر السابقة -->
+            <div class="glass-card p-5 rounded-3xl shadow-sm border border-purple-100">
+                <h2 class="text-xs font-extrabold mb-2 text-purple-900 flex items-center gap-1.5">
+                    <span>📦</span> الأرشيف التاريخي للأشهر السابقة
+                </h2>
+                <p class="text-[10px] text-slate-500 mb-3">اضغط على أي شهر لاستعراض تفاصيله كاملة:</p>
+                <div id="archive-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                    <p class="text-[11px] text-purple-400 text-center py-4">لا توجد شهور مؤرشفة بعد</p>
                 </div>
             </div>
         </div>
 
     </main>
 
+    <!-- نافذة استعراض تفاصيل الشهر المؤرشف -->
+    <div id="archive-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-purple-200 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-purple-100 pb-3">
+                <div>
+                    <h3 id="archive-modal-title" class="text-sm font-extrabold text-purple-900">تفاصيل الشهر</h3>
+                    <p class="text-[10px] text-slate-400">سجل أرشيف تاريخي للقراءة فقط</p>
+                </div>
+                <button type="button" onclick="closeArchiveDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs hover:bg-slate-200 transition cursor-pointer">✕</button>
+            </div>
+
+            <!-- إحصائيات الشهر المؤرشف -->
+            <div class="grid grid-cols-3 gap-2 bg-purple-50/70 p-3 rounded-2xl border border-purple-100 text-center">
+                <div>
+                    <span class="text-[9px] text-purple-700 font-semibold block">المصروفات</span>
+                    <p id="arch-total-exp" class="text-xs font-black text-rose-600">0 د.ع</p>
+                </div>
+                <div>
+                    <span class="text-[9px] text-purple-700 font-semibold block">الالتزامات</span>
+                    <p id="arch-total-ob" class="text-xs font-black text-sky-600">0 د.ع</p>
+                </div>
+                <div>
+                    <span class="text-[9px] text-purple-700 font-semibold block">الـمتبقي المرحل</span>
+                    <p id="arch-net-rem" class="text-xs font-black text-emerald-600">0 د.ع</p>
+                </div>
+            </div>
+
+            <!-- قوائم التفاصيل -->
+            <div class="space-y-3 overflow-y-auto flex-1 pr-1">
+                <div>
+                    <h4 class="text-[11px] font-extrabold text-indigo-900 mb-1.5">💸 المصروفات المسجلة:</h4>
+                    <div id="arch-expenses-list" class="space-y-1.5">
+                        <p class="text-[10px] text-slate-400 text-center py-2">لا توجد مصروفات</p>
+                    </div>
+                </div>
+                <hr class="border-slate-100">
+                <div>
+                    <h4 class="text-[11px] font-extrabold text-sky-900 mb-1.5">📌 الالتزامات المسجلة:</h4>
+                    <div id="arch-obligations-list" class="space-y-1.5">
+                        <p class="text-[10px] text-slate-400 text-center py-2">لا توجد التزامات</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" onclick="closeArchiveDetailModal()" class="w-full bg-purple-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-purple-700 transition cursor-pointer">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد ترحيل الشهر -->
+    <div id="rollover-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-emerald-100 text-center">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-2xl font-black">🔄</div>
+            <h3 class="text-sm font-extrabold text-slate-800">ترحيل الشهر الحالي وبدء شهر جديد</h3>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+                سيتم أرشفة مصروفات والتزامات هذا الشهر بالكامل، ونقل **الرصيد المتبقي الحقيقي** ليصبح هو الرصيد الأساسي للشهر الجديد، مع الاحتفاظ بجميع مدخراتك وأرشيفك القديم دون أي حذف.
+            </p>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="executeMonthRollover()" class="flex-1 bg-emerald-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-emerald-700 transition cursor-pointer">تأكيد الترحيل</button>
+                <button type="button" onclick="closeRolloverModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة تعديل الرصيد الأساسي -->
     <div id="balance-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
             <h3 class="text-sm font-extrabold text-slate-800">💰 تعديل الرصيد الأساسي</h3>
-            <p class="text-[11px] text-slate-500">أدخل إجمالي أموالك المتوفرة حالياً:</p>
             <input type="number" id="new-balance-input" placeholder="مثلاً: 1000000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
             <div class="flex gap-2 pt-2">
                 <button type="button" onclick="saveNewBalance()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ</button>
@@ -227,7 +297,6 @@
     <div id="budget-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-indigo-100">
             <h3 class="text-sm font-extrabold text-slate-800">🎯 تحديد سقف ميزانية الشهر</h3>
-            <p class="text-[11px] text-slate-500">أدخل الحد الأقصى للمصروفات المخطط لها:</p>
             <input type="number" id="new-budget-input" placeholder="مثلاً: 500000" class="w-full p-3.5 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
             <div class="flex gap-2 pt-2">
                 <button type="button" onclick="saveNewBudget()" class="flex-1 bg-indigo-600 text-white py-3 rounded-2xl font-bold text-xs hover:bg-indigo-700 transition cursor-pointer">حفظ السقف</button>
@@ -244,14 +313,14 @@
                 <div>
                     <label class="text-[10px] font-bold text-slate-600 block mb-1">إضافة مبلغ للمدخرات:</label>
                     <div class="flex gap-2">
-                        <input type="number" id="add-savings-input" placeholder="المبلغ المراد إضافته" class="w-full p-3 text-xs bg-emerald-50/50 border border-emerald-200 rounded-2xl text-slate-800 outline-none focus:border-emerald-500">
+                        <input type="number" id="add-savings-input" placeholder="المبلغ المراد إضافته" class="w-full p-3 text-xs bg-emerald-50/50 border border-emerald-200 rounded-2xl text-slate-800 outline-none">
                         <button type="button" onclick="addToSavings()" class="bg-emerald-600 text-white px-4 py-3 rounded-2xl font-bold text-xs hover:bg-emerald-700 transition cursor-pointer whitespace-nowrap">إيداع</button>
                     </div>
                 </div>
                 <hr class="border-slate-100">
                 <div>
                     <label class="text-[10px] font-bold text-slate-600 block mb-1">تحديد إجمالي المدخرات مباشرة:</label>
-                    <input type="number" id="new-savings-input" placeholder="إجمالي المدخرات" class="w-full p-3 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none focus:border-indigo-500">
+                    <input type="number" id="new-savings-input" placeholder="إجمالي المدخرات" class="w-full p-3 text-xs bg-indigo-50/50 border border-indigo-200 rounded-2xl text-slate-800 outline-none">
                     <button type="button" onclick="saveNewSavings()" class="w-full mt-2 bg-slate-800 text-white py-2.5 rounded-2xl font-bold text-xs hover:bg-slate-900 transition cursor-pointer">تحديث الإجمالي</button>
                 </div>
             </div>
@@ -261,7 +330,7 @@
         </div>
     </div>
 
-    <!-- نافذة اختيار مصدر التسديد عند دفع الدين -->
+    <!-- نافذة تسديد الدين -->
     <div id="pay-debt-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-amber-100">
             <h3 class="text-sm font-extrabold text-slate-800">💳 تسديد الدين</h3>
@@ -311,6 +380,7 @@
         let expensesData = [];
         let obligationsData = [];
         let debtsData = [];
+        let archivedMonths = {};
         let baseBalance = 0;
         let monthlyBudget = 500000;
         let totalSavings = 0;
@@ -373,6 +443,11 @@
                     debtsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
                 });
             }
+            renderData();
+        });
+
+        onValue(ref(db, "archive"), (snapshot) => {
+            archivedMonths = snapshot.exists() ? snapshot.val() : {};
             renderData();
         });
 
@@ -456,6 +531,98 @@
             }
         }
 
+        window.openRolloverModal = function() { document.getElementById('rollover-modal').classList.remove('hidden'); }
+        window.closeRolloverModal = function() { document.getElementById('rollover-modal').classList.add('hidden'); }
+
+        // ترحيل الشهر وأرشفته بدون ضياع بيانات
+        window.executeMonthRollover = async function() {
+            const now = new Date();
+            const archiveKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            let totalExp = expensesData.reduce((sum, item) => sum + item.amount, 0);
+            let totalOb = obligationsData.reduce((sum, item) => sum + item.amount, 0);
+            let netRemaining = baseBalance - totalExp - totalOb;
+
+            const monthArchiveData = {
+                archivedAt: Date.now(),
+                baseBalanceBefore: baseBalance,
+                totalExpenses: totalExp,
+                totalObligations: totalOb,
+                netRemaining: netRemaining,
+                expenses: expensesData,
+                obligations: obligationsData,
+                debts: debtsData
+            };
+
+            await set(ref(db, `archive/${archiveKey}`), monthArchiveData);
+
+            const newBaseBalance = baseBalance + netRemaining;
+            await set(ref(db, "settings/baseBalance"), newBaseBalance);
+
+            await set(ref(db, "expenses"), null);
+            await set(ref(db, "obligations"), null);
+
+            closeRolloverModal();
+            alert('تم ترحيل الشهر بنجاح وأرشفته، وأصبح الرصيد المتبقي جزءاً من الرصيد الأساسي للشهر الجديد!');
+        }
+
+        // فتح نافذة تفاصيل الشهر المؤرشف
+        window.openArchiveDetail = function(key) {
+            const monthData = archivedMonths[key];
+            if (!monthData) return;
+
+            document.getElementById('archive-modal-title').innerText = `تفاصيل أرشيف شهر: ${key}`;
+            document.getElementById('arch-total-exp').innerText = (monthData.totalExpenses || 0).toLocaleString() + ' د.ع';
+            document.getElementById('arch-total-ob').innerText = (monthData.totalObligations || 0).toLocaleString() + ' د.ع';
+            document.getElementById('arch-net-rem').innerText = (monthData.netRemaining || 0).toLocaleString() + ' د.ع';
+
+            const expBox = document.getElementById('arch-expenses-list');
+            const obBox = document.getElementById('arch-obligations-list');
+            expBox.innerHTML = '';
+            obBox.innerHTML = '';
+
+            const expList = monthData.expenses ? (Array.isArray(monthData.expenses) ? monthData.expenses : Object.values(monthData.expenses)) : [];
+            const obList = monthData.obligations ? (Array.isArray(monthData.obligations) ? monthData.obligations : Object.values(monthData.obligations)) : [];
+
+            if (expList.length === 0) {
+                expBox.innerHTML = '<p class="text-[10px] text-slate-400 text-center py-2">لا توجد مصروفات مسجلة في هذا الشهر</p>';
+            } else {
+                expList.forEach(item => {
+                    expBox.innerHTML += `
+                        <div class="flex justify-between items-center p-2.5 bg-indigo-50/40 rounded-xl border border-indigo-100 text-[11px]">
+                            <div>
+                                <p class="font-bold text-slate-800">${item.title}</p>
+                                <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-medium">${item.category || 'أخرى'}</span>
+                            </div>
+                            <span class="font-black text-rose-600">${(item.amount || 0).toLocaleString()} د.ع</span>
+                        </div>
+                    `;
+                });
+            }
+
+            if (obList.length === 0) {
+                obBox.innerHTML = '<p class="text-[10px] text-slate-400 text-center py-2">لا توجد التزامات مسجلة في هذا الشهر</p>';
+            } else {
+                obList.forEach(item => {
+                    obBox.innerHTML += `
+                        <div class="flex justify-between items-center p-2.5 bg-sky-50/40 rounded-xl border border-sky-100 text-[11px]">
+                            <div>
+                                <p class="font-bold text-slate-800">${item.title}</p>
+                                <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-medium">${item.category || 'أخرى'}</span>
+                            </div>
+                            <span class="font-black text-sky-600">${(item.amount || 0).toLocaleString()} د.ع</span>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('archive-detail-modal').classList.remove('hidden');
+        }
+
+        window.closeArchiveDetailModal = function() {
+            document.getElementById('archive-detail-modal').classList.add('hidden');
+        }
+
         window.addExpense = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('exp-btn');
@@ -503,19 +670,15 @@
                 });
                 document.getElementById('debt-form').reset();
             } catch (error) { alert('خطأ: ' + error.message); }
-            finally { btn.disabled = false; btn.innerText = 'حفظ الدين (بدون قيود)'; }
+            finally { btn.disabled = false; btn.innerText = 'حفظ الدين'; }
         }
 
         window.deleteObligation = async function(id) {
-            if(confirm('هل تريد حذف هذا الالتزام؟')) {
-                await remove(ref(db, `obligations/${id}`));
-            }
+            if(confirm('هل تريد حذف هذا الالتزام؟')) { await remove(ref(db, `obligations/${id}`)); }
         }
 
         window.deleteDebt = async function(id) {
-            if(confirm('هل تريد حذف هذا الدين من الأرشيف؟')) {
-                await remove(ref(db, `debts/${id}`));
-            }
+            if(confirm('هل تريد حذف هذا الدين من الأرشيف؟')) { await remove(ref(db, `debts/${id}`)); }
         }
 
         window.openPayDebtModal = function(id, name, amount) {
@@ -542,53 +705,26 @@
 
             await set(ref(db, `debts/${id}/paidAt`), paidDate);
             await set(ref(db, `debts/${id}/paidSource`), source);
-
             closePayDebtModal();
         }
 
         window.deleteExpense = async function(id) {
-            if(confirm('هل تريد حذف هذا المصروف؟')) {
-                await remove(ref(db, `expenses/${id}`));
-            }
-        }
-
-        window.exportData = function() {
-            let csvContent = "\uFEFFالعنوان/الاسم,المبلغ,التصنيف/النوع,التاريخ\n";
-            expensesData.forEach(item => {
-                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                csvContent += `مصروف: ${item.title},${item.amount},${item.category},${dateStr}\n`;
-            });
-            obligationsData.forEach(item => {
-                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                csvContent += `التزام: ${item.title},${item.amount},${item.category},${dateStr}\n`;
-            });
-            debtsData.forEach(item => {
-                const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
-                csvContent += `دين: ${item.name},${item.amount},دين,${dateStr}\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'smart_wallet_report.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            if(confirm('هل تريد حذف هذا المصروف؟')) { await remove(ref(db, `expenses/${id}`)); }
         }
 
         function renderData() {
             const expList = document.getElementById('expenses-list');
             const obList = document.getElementById('obligations-list');
             const debtList = document.getElementById('debts-list');
-            if(!expList || !obList || !debtList) return;
+            const archiveList = document.getElementById('archive-list');
+            if(!expList || !obList || !debtList || !archiveList) return;
 
-            expList.innerHTML = ''; obList.innerHTML = ''; debtList.innerHTML = '';
+            expList.innerHTML = ''; obList.innerHTML = ''; debtList.innerHTML = ''; archiveList.innerHTML = '';
 
             let totalExp = 0, totalOb = 0, totalDebtsCount = 0;
 
             if (expensesData.length === 0) {
-                expList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات مسجلة</p>';
+                expList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد مصروفات للشهر الحالي</p>';
             } else {
                 expensesData.forEach(item => {
                     totalExp += item.amount;
@@ -636,13 +772,11 @@
             }
 
             if (debtsData.length === 0) {
-                debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-6">لا توجد ديون أو سلف مسجلة</p>';
+                debtList.innerHTML = '<p class="text-[11px] text-indigo-400 text-center py-4">لا توجد ديون</p>';
             } else {
                 debtsData.forEach(item => {
                     const isPaid = item.paidAt ? true : false;
-                    if (!isPaid) {
-                        totalDebtsCount += item.amount;
-                    }
+                    if (!isPaid) totalDebtsCount += item.amount;
                     const dateStr = new Date(item.createdAt).toLocaleDateString('ar-IQ');
                     const paidDateStr = isPaid ? new Date(item.paidAt).toLocaleDateString('ar-IQ') : '';
                     
@@ -652,12 +786,12 @@
                                 <p class="font-bold text-slate-800">${item.name}</p>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-[9px] text-slate-400">${dateStr}</span>
-                                    ${isPaid ? `<span class="inline-block text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md font-semibold">مسدد (${item.paidSource === 'base' ? 'الرصيد' : 'المدخرات'}) في ${paidDateStr}</span>` : `<span class="inline-block text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-semibold">غير مسدد</span>`}
+                                    ${isPaid ? `<span class="inline-block text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md font-semibold">مسدد في ${paidDateStr}</span>` : `<span class="inline-block text-[9px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-semibold">غير مسدد</span>`}
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="font-black ${isPaid ? 'text-emerald-600 line-through' : 'text-amber-600'}">${item.amount.toLocaleString()} د.ع</span>
-                                ${!isPaid ? `<button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" class="bg-emerald-600 text-white px-2.5 py-1.5 rounded-xl font-bold text-[10px] hover:bg-emerald-700 transition cursor-pointer">تسديد</button>` : ''}
+                                ${!isPaid ? `<button type="button" onclick="openPayDebtModal('${item.id}', '${item.name}', ${item.amount})" class="bg-emerald-600 text-white px-2 py-1 rounded-xl font-bold text-[10px] hover:bg-emerald-700 transition cursor-pointer">تسديد</button>` : ''}
                                 <button type="button" onclick="deleteDebt('${item.id}')" class="text-rose-400 hover:text-rose-600 text-xs p-1 cursor-pointer">🗑️</button>
                             </div>
                         </div>
@@ -665,7 +799,25 @@
                 });
             }
 
-            // حساب الرصيد الصافي الحقيقي (الرصيد الأساسي - المصروفات - الالتزامات)
+            // عرض الأرشيف التاريخي مع زر تفاعل للاستعراض
+            const archiveKeys = Object.keys(archivedMonths);
+            if (archiveKeys.length === 0) {
+                archiveList.innerHTML = '<p class="text-[11px] text-purple-400 text-center py-4">لا توجد شهور مؤرشفة بعد</p>';
+            } else {
+                archiveKeys.sort().reverse().forEach(key => {
+                    const monthData = archivedMonths[key];
+                    archiveList.innerHTML += `
+                        <div onclick="openArchiveDetail('${key}')" class="p-3 bg-purple-50/60 hover:bg-purple-100/80 rounded-2xl border border-purple-100 text-xs flex justify-between items-center cursor-pointer transition">
+                            <div>
+                                <p class="font-extrabold text-purple-900">شهر: ${key} 🔍</p>
+                                <p class="text-[10px] text-slate-500">المصروفات: ${(monthData.totalExpenses || 0).toLocaleString()} د.ع | المتبقي المرحل: ${(monthData.netRemaining || 0).toLocaleString()} د.ع</p>
+                            </div>
+                            <span class="text-[10px] bg-purple-200 text-purple-800 px-2.5 py-1 rounded-xl font-bold">استعراض</span>
+                        </div>
+                    `;
+                });
+            }
+
             const netVal = baseBalance - totalExp - totalOb;
             document.getElementById('net-balance').innerText = netVal.toLocaleString() + ' د.ع';
             document.getElementById('base-balance-text').innerText = baseBalance.toLocaleString();
@@ -680,13 +832,9 @@
             const bar = document.getElementById('budget-progress-bar');
             if (bar) {
                 bar.style.width = percent + '%';
-                if (percent >= 90) {
-                    bar.className = "bg-rose-500 h-full transition-all duration-500";
-                } else if (percent >= 70) {
-                    bar.className = "bg-amber-400 h-full transition-all duration-500";
-                } else {
-                    bar.className = "bg-emerald-400 h-full transition-all duration-500";
-                }
+                if (percent >= 90) bar.className = "bg-rose-500 h-full transition-all duration-500";
+                else if (percent >= 70) bar.className = "bg-amber-400 h-full transition-all duration-500";
+                else bar.className = "bg-emerald-400 h-full transition-all duration-500";
             }
         }
     </script>
